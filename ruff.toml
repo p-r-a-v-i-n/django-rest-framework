@@ -1,0 +1,36 @@
+
+
+exclude = [
+".tox",
+  ".env",
+  ".git",
+  ".venv",
+  "__pycache__",
+  "build",
+  "dist",
+  "venv",
+  "migrations",
+]
+
+target-version = "py310"
+line-length = 88
+
+[format]
+indent-style = "space"
+
+[lint]
+select = [ 
+  # pycodestyle
+  "E",
+  # Pyflakes
+  "F",
+  # isort
+  "I",
+  "I001"
+]
+ignore = ["E501", "F601",]
+
+[lint.isort]
+known-third-party = ["pytest", "_pytest", "django", "pytz", "uritemplate"]
+known-first-party = ["rest_framework", "tests"]
+extra-standard-library = ["types"]

@@ -15,13 +15,13 @@ class Example(models.Model):
     def __str__(self):
         global str_called
         str_called = True
-        return 'An example'
+        return "An example"
 
 
 class ExampleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Example
-        fields = ('url', 'id', 'text')
+        fields = ("url", "id", "text")
 
 
 def dummy_view(request):
@@ -29,21 +29,21 @@ def dummy_view(request):
 
 
 urlpatterns = [
-    path('example/<int:pk>/', dummy_view, name='example-detail'),
+    path("example/<int:pk>/", dummy_view, name="example-detail"),
 ]
 
 
-@override_settings(ROOT_URLCONF='tests.test_lazy_hyperlinks')
+@override_settings(ROOT_URLCONF="tests.test_lazy_hyperlinks")
 class TestLazyHyperlinkNames(TestCase):
     def setUp(self):
-        self.example = Example.objects.create(text='foo')
+        self.example = Example.objects.create(text="foo")
 
     def test_lazy_hyperlink_names(self):
         global str_called  # noqa: F824
-        context = {'request': None}
+        context = {"request": None}
         serializer = ExampleSerializer(self.example, context=context)
         JSONRenderer().render(serializer.data)
         assert not str_called
-        hyperlink_string = format_value(serializer.data['url'])
-        assert hyperlink_string == '<a href=/example/1/>An example</a>'
+        hyperlink_string = format_value(serializer.data["url"])
+        assert hyperlink_string == "<a href=/example/1/>An example</a>"
         assert str_called

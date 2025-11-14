@@ -9,8 +9,11 @@ from rest_framework.exceptions import ErrorDetail
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory
 from tests.models import (
-    BasicModel, ForeignKeySource, ForeignKeyTarget, RESTFrameworkModel,
-    UUIDForeignKeyTarget
+    BasicModel,
+    ForeignKeySource,
+    ForeignKeyTarget,
+    RESTFrameworkModel,
+    UUIDForeignKeyTarget,
 )
 
 factory = APIRequestFactory()
@@ -33,13 +36,13 @@ class Comment(RESTFrameworkModel):
 class BasicSerializer(serializers.ModelSerializer):
     class Meta:
         model = BasicModel
-        fields = '__all__'
+        fields = "__all__"
 
 
 class ForeignKeySerializer(serializers.ModelSerializer):
     class Meta:
         model = ForeignKeySource
-        fields = '__all__'
+        fields = "__all__"
 
 
 class SlugSerializer(serializers.ModelSerializer):
@@ -47,7 +50,7 @@ class SlugSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SlugBasedModel
-        fields = ('text', 'slug')
+        fields = ("text", "slug")
 
 
 # Views
@@ -57,7 +60,7 @@ class RootView(generics.ListCreateAPIView):
 
 
 class InstanceView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = BasicModel.objects.exclude(text='filtered out')
+    queryset = BasicModel.objects.exclude(text="filtered out")
     serializer_class = BasicSerializer
 
 
@@ -70,9 +73,10 @@ class SlugBasedInstanceView(InstanceView):
     """
     A model with a slug-field.
     """
+
     queryset = SlugBasedModel.objects.all()
     serializer_class = SlugSerializer
-    lookup_field = 'slug'
+    lookup_field = "slug"
 
 
 # Tests
@@ -81,21 +85,18 @@ class TestRootView(TestCase):
         """
         Create 3 BasicModel instances.
         """
-        items = ['foo', 'bar', 'baz']
+        items = ["foo", "bar", "baz"]
         for item in items:
             BasicModel(text=item).save()
         self.objects = BasicModel.objects
-        self.data = [
-            {'id': obj.id, 'text': obj.text}
-            for obj in self.objects.all()
-        ]
+        self.data = [{"id": obj.id, "text": obj.text} for obj in self.objects.all()]
         self.view = RootView.as_view()
 
     def test_get_root_view(self):
         """
         GET requests to ListCreateAPIView should return list of objects.
         """
-        request = factory.get('/')
+        request = factory.get("/")
         with self.assertNumQueries(1):
             response = self.view(request).render()
         assert response.status_code == status.HTTP_200_OK
@@ -105,7 +106,7 @@ class TestRootView(TestCase):
         """
         HEAD requests to ListCreateAPIView should return 200.
         """
-        request = factory.head('/')
+        request = factory.head("/")
         with self.assertNumQueries(1):
             response = self.view(request).render()
         assert response.status_code == status.HTTP_200_OK
@@ -114,21 +115,21 @@ class TestRootView(TestCase):
         """
         POST requests to ListCreateAPIView should create a new object.
         """
-        data = {'text': 'foobar'}
-        request = factory.post('/', data, format='json')
+        data = {"text": "foobar"}
+        request = factory.post("/", data, format="json")
         with self.assertNumQueries(1):
             response = self.view(request).render()
         assert response.status_code == status.HTTP_201_CREATED
-        assert response.data == {'id': 4, 'text': 'foobar'}
+        assert response.data == {"id": 4, "text": "foobar"}
         created = self.objects.get(id=4)
-        assert created.text == 'foobar'
+        assert created.text == "foobar"
 
     def test_put_root_view(self):
         """
         PUT requests to ListCreateAPIView should not be allowed
         """
-        data = {'text': 'foobar'}
-        request = factory.put('/', data, format='json')
+        data = {"text": "foobar"}
+        request = factory.put("/", data, format="json")
         with self.assertNumQueries(0):
             response = self.view(request).render()
         assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
@@ -138,7 +139,7 @@ class TestRootView(TestCase):
         """
         DELETE requests to ListCreateAPIView should not be allowed
         """
-        request = factory.delete('/')
+        request = factory.delete("/")
         with self.assertNumQueries(0):
             response = self.view(request).render()
         assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
@@ -148,21 +149,21 @@ class TestRootView(TestCase):
         """
         POST requests to create a new object should not be able to set the id.
         """
-        data = {'id': 999, 'text': 'foobar'}
-        request = factory.post('/', data, format='json')
+        data = {"id": 999, "text": "foobar"}
+        request = factory.post("/", data, format="json")
         with self.assertNumQueries(1):
             response = self.view(request).render()
         assert response.status_code == status.HTTP_201_CREATED
-        assert response.data == {'id': 4, 'text': 'foobar'}
+        assert response.data == {"id": 4, "text": "foobar"}
         created = self.objects.get(id=4)
-        assert created.text == 'foobar'
+        assert created.text == "foobar"
 
     def test_post_error_root_view(self):
         """
         POST requests to ListCreateAPIView in HTML should include a form error.
         """
-        data = {'text': 'foobar' * 100}
-        request = factory.post('/', data, HTTP_ACCEPT='text/html')
+        data = {"text": "foobar" * 100}
+        request = factory.post("/", data, HTTP_ACCEPT="text/html")
         response = self.view(request).render()
         expected_error = '<span class="help-block">Ensure this field has no more than 100 characters.</span>'
         assert expected_error in response.rendered_content.decode()
@@ -176,14 +177,11 @@ class TestInstanceView(TestCase):
         """
         Create 3 BasicModel instances.
         """
-        items = ['foo', 'bar', 'baz', 'filtered out']
+        items = ["foo", "bar", "baz", "filtered out"]
         for item in items:
             BasicModel(text=item).save()
-        self.objects = BasicModel.objects.exclude(text='filtered out')
-        self.data = [
-            {'id': obj.id, 'text': obj.text}
-            for obj in self.objects.all()
-        ]
+        self.objects = BasicModel.objects.exclude(text="filtered out")
+        self.data = [{"id": obj.id, "text": obj.text} for obj in self.objects.all()]
         self.view = InstanceView.as_view()
         self.slug_based_view = SlugBasedInstanceView.as_view()
 
@@ -191,7 +189,7 @@ class TestInstanceView(TestCase):
         """
         GET requests to RetrieveUpdateDestroyAPIView should return a single object.
         """
-        request = factory.get('/1')
+        request = factory.get("/1")
         with self.assertNumQueries(1):
             response = self.view(request, pk=1).render()
         assert response.status_code == status.HTTP_200_OK
@@ -201,8 +199,8 @@ class TestInstanceView(TestCase):
         """
         POST requests to RetrieveUpdateDestroyAPIView should not be allowed
         """
-        data = {'text': 'foobar'}
-        request = factory.post('/', data, format='json')
+        data = {"text": "foobar"}
+        request = factory.post("/", data, format="json")
         with self.assertNumQueries(0):
             response = self.view(request).render()
         assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
@@ -212,38 +210,38 @@ class TestInstanceView(TestCase):
         """
         PUT requests to RetrieveUpdateDestroyAPIView should update an object.
         """
-        data = {'text': 'foobar'}
-        request = factory.put('/1', data, format='json')
+        data = {"text": "foobar"}
+        request = factory.put("/1", data, format="json")
         with self.assertNumQueries(EXPECTED_QUERIES_FOR_PUT):
-            response = self.view(request, pk='1').render()
+            response = self.view(request, pk="1").render()
         assert response.status_code == status.HTTP_200_OK
-        assert dict(response.data) == {'id': 1, 'text': 'foobar'}
+        assert dict(response.data) == {"id": 1, "text": "foobar"}
         updated = self.objects.get(id=1)
-        assert updated.text == 'foobar'
+        assert updated.text == "foobar"
 
     def test_patch_instance_view(self):
         """
         PATCH requests to RetrieveUpdateDestroyAPIView should update an object.
         """
-        data = {'text': 'foobar'}
-        request = factory.patch('/1', data, format='json')
+        data = {"text": "foobar"}
+        request = factory.patch("/1", data, format="json")
 
         with self.assertNumQueries(EXPECTED_QUERIES_FOR_PUT):
             response = self.view(request, pk=1).render()
         assert response.status_code == status.HTTP_200_OK
-        assert response.data == {'id': 1, 'text': 'foobar'}
+        assert response.data == {"id": 1, "text": "foobar"}
         updated = self.objects.get(id=1)
-        assert updated.text == 'foobar'
+        assert updated.text == "foobar"
 
     def test_delete_instance_view(self):
         """
         DELETE requests to RetrieveUpdateDestroyAPIView should delete an object.
         """
-        request = factory.delete('/1')
+        request = factory.delete("/1")
         with self.assertNumQueries(2):
             response = self.view(request, pk=1).render()
         assert response.status_code == status.HTTP_204_NO_CONTENT
-        assert response.content == b''
+        assert response.content == b""
         ids = [obj.id for obj in self.objects.all()]
         assert ids == [2, 3]
 
@@ -252,23 +250,23 @@ class TestInstanceView(TestCase):
         GET requests with an incorrect pk type, should raise 404, not 500.
         Regression test for #890.
         """
-        request = factory.get('/a')
+        request = factory.get("/a")
         with self.assertNumQueries(0):
-            response = self.view(request, pk='a').render()
+            response = self.view(request, pk="a").render()
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_put_cannot_set_id(self):
         """
         PUT requests to create a new object should not be able to set the id.
         """
-        data = {'id': 999, 'text': 'foobar'}
-        request = factory.put('/1', data, format='json')
+        data = {"id": 999, "text": "foobar"}
+        request = factory.put("/1", data, format="json")
         with self.assertNumQueries(EXPECTED_QUERIES_FOR_PUT):
             response = self.view(request, pk=1).render()
         assert response.status_code == status.HTTP_200_OK
-        assert response.data == {'id': 1, 'text': 'foobar'}
+        assert response.data == {"id": 1, "text": "foobar"}
         updated = self.objects.get(id=1)
-        assert updated.text == 'foobar'
+        assert updated.text == "foobar"
 
     def test_put_to_deleted_instance(self):
         """
@@ -276,8 +274,8 @@ class TestInstanceView(TestCase):
         an object does not currently exist.
         """
         self.objects.get(id=1).delete()
-        data = {'text': 'foobar'}
-        request = factory.put('/1', data, format='json')
+        data = {"text": "foobar"}
+        request = factory.put("/1", data, format="json")
         with self.assertNumQueries(1):
             response = self.view(request, pk=1).render()
         assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -287,9 +285,9 @@ class TestInstanceView(TestCase):
         PUT requests to an URL of instance which is filtered out should not be
         able to create new objects.
         """
-        data = {'text': 'foo'}
-        filtered_out_pk = BasicModel.objects.filter(text='filtered out')[0].pk
-        request = factory.put(f'/{filtered_out_pk}', data, format='json')
+        data = {"text": "foo"}
+        filtered_out_pk = BasicModel.objects.filter(text="filtered out")[0].pk
+        request = factory.put(f"/{filtered_out_pk}", data, format="json")
         response = self.view(request, pk=filtered_out_pk).render()
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
@@ -297,8 +295,8 @@ class TestInstanceView(TestCase):
         """
         PATCH requests should not be able to create objects.
         """
-        data = {'text': 'foobar'}
-        request = factory.patch('/999', data, format='json')
+        data = {"text": "foobar"}
+        request = factory.patch("/999", data, format="json")
         with self.assertNumQueries(1):
             response = self.view(request, pk=999).render()
         assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -308,8 +306,8 @@ class TestInstanceView(TestCase):
         """
         Incorrect PUT requests in HTML should include a form error.
         """
-        data = {'text': 'foobar' * 100}
-        request = factory.put('/', data, HTTP_ACCEPT='text/html')
+        data = {"text": "foobar" * 100}
+        request = factory.put("/", data, HTTP_ACCEPT="text/html")
         response = self.view(request, pk=1).render()
         expected_error = '<span class="help-block">Ensure this field has no more than 100 characters.</span>'
         assert expected_error in response.rendered_content.decode()
@@ -320,17 +318,14 @@ class TestFKInstanceView(TestCase):
         """
         Create 3 BasicModel instances.
         """
-        items = ['foo', 'bar', 'baz']
+        items = ["foo", "bar", "baz"]
         for item in items:
             t = ForeignKeyTarget(name=item)
             t.save()
-            ForeignKeySource(name='source_' + item, target=t).save()
+            ForeignKeySource(name="source_" + item, target=t).save()
 
         self.objects = ForeignKeySource.objects
-        self.data = [
-            {'id': obj.id, 'name': obj.name}
-            for obj in self.objects.all()
-        ]
+        self.data = [{"id": obj.id, "name": obj.name} for obj in self.objects.all()]
         self.view = FKInstanceView.as_view()
 
 
@@ -344,23 +339,21 @@ class TestOverriddenGetObject(TestCase):
         """
         Create 3 BasicModel instances.
         """
-        items = ['foo', 'bar', 'baz']
+        items = ["foo", "bar", "baz"]
         for item in items:
             BasicModel(text=item).save()
         self.objects = BasicModel.objects
-        self.data = [
-            {'id': obj.id, 'text': obj.text}
-            for obj in self.objects.all()
-        ]
+        self.data = [{"id": obj.id, "text": obj.text} for obj in self.objects.all()]
 
         class OverriddenGetObjectView(generics.RetrieveUpdateDestroyAPIView):
             """
             Example detail view for override of get_object().
             """
+
             serializer_class = BasicSerializer
 
             def get_object(self):
-                pk = int(self.kwargs['pk'])
+                pk = int(self.kwargs["pk"])
                 return get_object_or_404(BasicModel.objects.all(), id=pk)
 
         self.view = OverriddenGetObjectView.as_view()
@@ -369,7 +362,7 @@ class TestOverriddenGetObject(TestCase):
         """
         GET requests to RetrieveUpdateDestroyAPIView should return a single object.
         """
-        request = factory.get('/1')
+        request = factory.get("/1")
         with self.assertNumQueries(1):
             response = self.view(request, pk=1).render()
         assert response.status_code == status.HTTP_200_OK
@@ -378,10 +371,11 @@ class TestOverriddenGetObject(TestCase):
 
 # Regression test for #285
 
+
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        exclude = ('created',)
+        exclude = ("created",)
 
 
 class CommentView(generics.ListCreateAPIView):
@@ -400,12 +394,12 @@ class TestCreateModelWithAutoNowAddField(TestCase):
 
         https://github.com/encode/django-rest-framework/issues/285
         """
-        data = {'email': 'foobar@example.com', 'content': 'foobar'}
-        request = factory.post('/', data, format='json')
+        data = {"email": "foobar@example.com", "content": "foobar"}
+        request = factory.post("/", data, format="json")
         response = self.view(request).render()
         assert response.status_code == status.HTTP_201_CREATED
         created = self.objects.get(id=1)
-        assert created.content == 'foobar'
+        assert created.content == "foobar"
 
 
 # Test for particularly ugly regression with m2m in browsable API
@@ -425,7 +419,7 @@ class ClassASerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ClassA
-        fields = '__all__'
+        fields = "__all__"
 
 
 class ExampleView(generics.ListCreateAPIView):
@@ -438,7 +432,7 @@ class TestM2MBrowsableAPI(TestCase):
         """
         Test for particularly ugly regression with m2m in browsable API
         """
-        request = factory.get('/', HTTP_ACCEPT='text/html')
+        request = factory.get("/", HTTP_ACCEPT="text/html")
         view = ExampleView().as_view()
         response = view(request).render()
         assert response.status_code == status.HTTP_200_OK
@@ -446,12 +440,12 @@ class TestM2MBrowsableAPI(TestCase):
 
 class InclusiveFilterBackend:
     def filter_queryset(self, request, queryset, view):
-        return queryset.filter(text='foo')
+        return queryset.filter(text="foo")
 
 
 class ExclusiveFilterBackend:
     def filter_queryset(self, request, queryset, view):
-        return queryset.filter(text='other')
+        return queryset.filter(text="other")
 
 
 class TwoFieldModel(models.Model):
@@ -464,16 +458,19 @@ class DynamicSerializerView(generics.ListCreateAPIView):
     renderer_classes = (renderers.BrowsableAPIRenderer, renderers.JSONRenderer)
 
     def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.request.method == "POST":
+
             class DynamicSerializer(serializers.ModelSerializer):
                 class Meta:
                     model = TwoFieldModel
-                    fields = ('field_b',)
+                    fields = ("field_b",)
         else:
+
             class DynamicSerializer(serializers.ModelSerializer):
                 class Meta:
                     model = TwoFieldModel
-                    fields = '__all__'
+                    fields = "__all__"
+
         return DynamicSerializer
 
 
@@ -482,32 +479,29 @@ class TestFilterBackendAppliedToViews(TestCase):
         """
         Create 3 BasicModel instances to filter on.
         """
-        items = ['foo', 'bar', 'baz']
+        items = ["foo", "bar", "baz"]
         for item in items:
             BasicModel(text=item).save()
         self.objects = BasicModel.objects
-        self.data = [
-            {'id': obj.id, 'text': obj.text}
-            for obj in self.objects.all()
-        ]
+        self.data = [{"id": obj.id, "text": obj.text} for obj in self.objects.all()]
 
     def test_get_root_view_filters_by_name_with_filter_backend(self):
         """
         GET requests to ListCreateAPIView should return filtered list.
         """
         root_view = RootView.as_view(filter_backends=(InclusiveFilterBackend,))
-        request = factory.get('/')
+        request = factory.get("/")
         response = root_view(request).render()
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 1
-        assert response.data == [{'id': 1, 'text': 'foo'}]
+        assert response.data == [{"id": 1, "text": "foo"}]
 
     def test_get_root_view_filters_out_all_models_with_exclusive_filter_backend(self):
         """
         GET requests to ListCreateAPIView should return empty list when all models are filtered out.
         """
         root_view = RootView.as_view(filter_backends=(ExclusiveFilterBackend,))
-        request = factory.get('/')
+        request = factory.get("/")
         response = root_view(request).render()
         assert response.status_code == status.HTTP_200_OK
         assert response.data == []
@@ -517,36 +511,37 @@ class TestFilterBackendAppliedToViews(TestCase):
         GET requests to RetrieveUpdateDestroyAPIView should raise 404 when model filtered out.
         """
         instance_view = InstanceView.as_view(filter_backends=(ExclusiveFilterBackend,))
-        request = factory.get('/1')
+        request = factory.get("/1")
         response = instance_view(request, pk=1).render()
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert response.data == {
-            'detail': ErrorDetail(
-                string='No BasicModel matches the given query.',
-                code='not_found'
+            "detail": ErrorDetail(
+                string="No BasicModel matches the given query.", code="not_found"
             )
         }
 
-    def test_get_instance_view_will_return_single_object_when_filter_does_not_exclude_it(self):
+    def test_get_instance_view_will_return_single_object_when_filter_does_not_exclude_it(
+        self,
+    ):
         """
         GET requests to RetrieveUpdateDestroyAPIView should return a single object when not excluded
         """
         instance_view = InstanceView.as_view(filter_backends=(InclusiveFilterBackend,))
-        request = factory.get('/1')
+        request = factory.get("/1")
         response = instance_view(request, pk=1).render()
         assert response.status_code == status.HTTP_200_OK
-        assert response.data == {'id': 1, 'text': 'foo'}
+        assert response.data == {"id": 1, "text": "foo"}
 
     def test_dynamic_serializer_form_in_browsable_api(self):
         """
         GET requests to ListCreateAPIView should return filtered list.
         """
         view = DynamicSerializerView.as_view()
-        request = factory.get('/')
+        request = factory.get("/")
         response = view(request).render()
         content = response.content.decode()
-        assert 'field_b' in content
-        assert 'field_a' not in content
+        assert "field_b" in content
+        assert "field_a" not in content
 
 
 class TestGuardedQueryset(TestCase):
@@ -558,21 +553,21 @@ class TestGuardedQueryset(TestCase):
                 return Response(list(self.queryset))
 
         view = QuerysetAccessError.as_view()
-        request = factory.get('/')
+        request = factory.get("/")
         with pytest.raises(RuntimeError):
             view(request).render()
 
 
 class ApiViewsTests(TestCase):
-
     def test_create_api_view_post(self):
         class MockCreateApiView(generics.CreateAPIView):
             def create(self, request, *args, **kwargs):
                 self.called = True
                 self.call_args = (request, args, kwargs)
+
         view = MockCreateApiView()
-        data = ('test request', ('test arg',), {'test_kwarg': 'test'})
-        view.post('test request', 'test arg', test_kwarg='test')
+        data = ("test request", ("test arg",), {"test_kwarg": "test"})
+        view.post("test request", "test arg", test_kwarg="test")
         assert view.called is True
         assert view.call_args == data
 
@@ -581,9 +576,10 @@ class ApiViewsTests(TestCase):
             def destroy(self, request, *args, **kwargs):
                 self.called = True
                 self.call_args = (request, args, kwargs)
+
         view = MockDestroyApiView()
-        data = ('test request', ('test arg',), {'test_kwarg': 'test'})
-        view.delete('test request', 'test arg', test_kwarg='test')
+        data = ("test request", ("test arg",), {"test_kwarg": "test"})
+        view.delete("test request", "test arg", test_kwarg="test")
         assert view.called is True
         assert view.call_args == data
 
@@ -592,9 +588,10 @@ class ApiViewsTests(TestCase):
             def partial_update(self, request, *args, **kwargs):
                 self.called = True
                 self.call_args = (request, args, kwargs)
+
         view = MockUpdateApiView()
-        data = ('test request', ('test arg',), {'test_kwarg': 'test'})
-        view.patch('test request', 'test arg', test_kwarg='test')
+        data = ("test request", ("test arg",), {"test_kwarg": "test"})
+        view.patch("test request", "test arg", test_kwarg="test")
         assert view.called is True
         assert view.call_args == data
 
@@ -603,9 +600,10 @@ class ApiViewsTests(TestCase):
             def retrieve(self, request, *args, **kwargs):
                 self.called = True
                 self.call_args = (request, args, kwargs)
+
         view = MockRetrieveUpdateApiView()
-        data = ('test request', ('test arg',), {'test_kwarg': 'test'})
-        view.get('test request', 'test arg', test_kwarg='test')
+        data = ("test request", ("test arg",), {"test_kwarg": "test"})
+        view.get("test request", "test arg", test_kwarg="test")
         assert view.called is True
         assert view.call_args == data
 
@@ -614,9 +612,10 @@ class ApiViewsTests(TestCase):
             def update(self, request, *args, **kwargs):
                 self.called = True
                 self.call_args = (request, args, kwargs)
+
         view = MockRetrieveUpdateApiView()
-        data = ('test request', ('test arg',), {'test_kwarg': 'test'})
-        view.put('test request', 'test arg', test_kwarg='test')
+        data = ("test request", ("test arg",), {"test_kwarg": "test"})
+        view.put("test request", "test arg", test_kwarg="test")
         assert view.called is True
         assert view.call_args == data
 
@@ -625,9 +624,10 @@ class ApiViewsTests(TestCase):
             def partial_update(self, request, *args, **kwargs):
                 self.called = True
                 self.call_args = (request, args, kwargs)
+
         view = MockRetrieveUpdateApiView()
-        data = ('test request', ('test arg',), {'test_kwarg': 'test'})
-        view.patch('test request', 'test arg', test_kwarg='test')
+        data = ("test request", ("test arg",), {"test_kwarg": "test"})
+        view.patch("test request", "test arg", test_kwarg="test")
         assert view.called is True
         assert view.call_args == data
 
@@ -636,9 +636,10 @@ class ApiViewsTests(TestCase):
             def retrieve(self, request, *args, **kwargs):
                 self.called = True
                 self.call_args = (request, args, kwargs)
+
         view = MockRetrieveDestroyUApiView()
-        data = ('test request', ('test arg',), {'test_kwarg': 'test'})
-        view.get('test request', 'test arg', test_kwarg='test')
+        data = ("test request", ("test arg",), {"test_kwarg": "test"})
+        view.get("test request", "test arg", test_kwarg="test")
         assert view.called is True
         assert view.call_args == data
 
@@ -647,9 +648,10 @@ class ApiViewsTests(TestCase):
             def destroy(self, request, *args, **kwargs):
                 self.called = True
                 self.call_args = (request, args, kwargs)
+
         view = MockRetrieveDestroyUApiView()
-        data = ('test request', ('test arg',), {'test_kwarg': 'test'})
-        view.delete('test request', 'test arg', test_kwarg='test')
+        data = ("test request", ("test arg",), {"test_kwarg": "test"})
+        view.delete("test request", "test arg", test_kwarg="test")
         assert view.called is True
         assert view.call_args == data
 
@@ -657,21 +659,18 @@ class ApiViewsTests(TestCase):
 class GetObjectOr404Tests(TestCase):
     def setUp(self):
         super().setUp()
-        self.uuid_object = UUIDForeignKeyTarget.objects.create(name='bar')
+        self.uuid_object = UUIDForeignKeyTarget.objects.create(name="bar")
 
     def test_get_object_or_404_with_valid_uuid(self):
-        obj = generics.get_object_or_404(
-            UUIDForeignKeyTarget, pk=self.uuid_object.pk
-        )
+        obj = generics.get_object_or_404(UUIDForeignKeyTarget, pk=self.uuid_object.pk)
         assert obj == self.uuid_object
 
     def test_get_object_or_404_with_invalid_string_for_uuid(self):
         with pytest.raises(Http404):
-            generics.get_object_or_404(UUIDForeignKeyTarget, pk='not-a-uuid')
+            generics.get_object_or_404(UUIDForeignKeyTarget, pk="not-a-uuid")
 
 
 class TestSerializer(TestCase):
-
     def test_serializer_class_not_provided(self):
         class NoSerializerClass(generics.GenericAPIView):
             pass
@@ -681,7 +680,8 @@ class TestSerializer(TestCase):
 
         assert str(excinfo.value) == (
             "'NoSerializerClass' should either include a `serializer_class` "
-            "attribute, or override the `get_serializer_class()` method.")
+            "attribute, or override the `get_serializer_class()` method."
+        )
 
     def test_given_context_not_overridden(self):
         context = object()
@@ -694,7 +694,7 @@ class TestSerializer(TestCase):
                 response.serializer = self.get_serializer(context=context)
                 return response
 
-        response = View.as_view()(factory.get('/'))
+        response = View.as_view()(factory.get("/"))
         serializer = response.serializer
 
         assert serializer.context is context

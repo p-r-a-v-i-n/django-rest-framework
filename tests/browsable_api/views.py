@@ -10,7 +10,9 @@ from .serializers import BasicSerializer
 
 class OrganizationPermissions(BasePermission):
     def has_object_permission(self, request, view, obj):
-        return request.user.is_staff or (request.user == obj.owner.organization_user.user)
+        return request.user.is_staff or (
+            request.user == obj.owner.organization_user.user
+        )
 
 
 class MockView(APIView):
@@ -18,7 +20,7 @@ class MockView(APIView):
     renderer_classes = (renderers.BrowsableAPIRenderer, renderers.JSONRenderer)
 
     def get(self, request):
-        return Response({'a': 1, 'b': 2, 'c': 3})
+        return Response({"a": 1, "b": 2, "c": 3})
 
 
 class BasicModelWithUsersViewSet(ModelViewSet):

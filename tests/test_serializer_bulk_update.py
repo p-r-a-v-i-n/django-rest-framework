@@ -1,6 +1,7 @@
 """
 Tests to cover bulk create and update using serializers.
 """
+
 from django.test import TestCase
 
 from rest_framework import serializers
@@ -26,18 +27,16 @@ class BulkCreateSerializerTests(TestCase):
 
         data = [
             {
-                'id': 0,
-                'title': 'The electric kool-aid acid test',
-                'author': 'Tom Wolfe'
-            }, {
-                'id': 1,
-                'title': 'If this is a man',
-                'author': 'Primo Levi'
-            }, {
-                'id': 2,
-                'title': 'The wind-up bird chronicle',
-                'author': 'Haruki Murakami'
-            }
+                "id": 0,
+                "title": "The electric kool-aid acid test",
+                "author": "Tom Wolfe",
+            },
+            {"id": 1, "title": "If this is a man", "author": "Primo Levi"},
+            {
+                "id": 2,
+                "title": "The wind-up bird chronicle",
+                "author": "Haruki Murakami",
+            },
         ]
 
         serializer = self.BookSerializer(data=data, many=True)
@@ -52,24 +51,18 @@ class BulkCreateSerializerTests(TestCase):
 
         data = [
             {
-                'id': 0,
-                'title': 'The electric kool-aid acid test',
-                'author': 'Tom Wolfe'
-            }, {
-                'id': 1,
-                'title': 'If this is a man',
-                'author': 'Primo Levi'
-            }, {
-                'id': 'foo',
-                'title': 'The wind-up bird chronicle',
-                'author': 'Haruki Murakami'
-            }
+                "id": 0,
+                "title": "The electric kool-aid acid test",
+                "author": "Tom Wolfe",
+            },
+            {"id": 1, "title": "If this is a man", "author": "Primo Levi"},
+            {
+                "id": "foo",
+                "title": "The wind-up bird chronicle",
+                "author": "Haruki Murakami",
+            },
         ]
-        expected_errors = [
-            {},
-            {},
-            {'id': ['A valid integer is required.']}
-        ]
+        expected_errors = [{}, {}, {"id": ["A valid integer is required."]}]
 
         serializer = self.BookSerializer(data=data, many=True)
         assert serializer.is_valid() is False
@@ -80,15 +73,15 @@ class BulkCreateSerializerTests(TestCase):
         """
         Data containing list of incorrect data type should return errors.
         """
-        data = ['foo', 'bar', 'baz']
+        data = ["foo", "bar", "baz"]
         serializer = self.BookSerializer(data=data, many=True)
         assert serializer.is_valid() is False
 
-        message = 'Invalid data. Expected a dictionary, but got str.'
+        message = "Invalid data. Expected a dictionary, but got str."
         expected_errors = [
-            {'non_field_errors': [message]},
-            {'non_field_errors': [message]},
-            {'non_field_errors': [message]}
+            {"non_field_errors": [message]},
+            {"non_field_errors": [message]},
+            {"non_field_errors": [message]},
         ]
 
         assert serializer.errors == expected_errors
@@ -101,7 +94,9 @@ class BulkCreateSerializerTests(TestCase):
         serializer = self.BookSerializer(data=data, many=True)
         assert serializer.is_valid() is False
 
-        expected_errors = {'non_field_errors': ['Expected a list of items but got type "int".']}
+        expected_errors = {
+            "non_field_errors": ['Expected a list of items but got type "int".']
+        }
 
         assert serializer.errors == expected_errors
 
@@ -111,13 +106,15 @@ class BulkCreateSerializerTests(TestCase):
         should return errors.
         """
         data = {
-            'id': 0,
-            'title': 'The electric kool-aid acid test',
-            'author': 'Tom Wolfe'
+            "id": 0,
+            "title": "The electric kool-aid acid test",
+            "author": "Tom Wolfe",
         }
         serializer = self.BookSerializer(data=data, many=True)
         assert serializer.is_valid() is False
 
-        expected_errors = {'non_field_errors': ['Expected a list of items but got type "dict".']}
+        expected_errors = {
+            "non_field_errors": ['Expected a list of items but got type "dict".']
+        }
 
         assert serializer.errors == expected_errors

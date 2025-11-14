@@ -2,8 +2,12 @@ import uuid
 from datetime import timedelta
 
 from django.core.validators import (
-    DecimalValidator, MaxLengthValidator, MaxValueValidator,
-    MinLengthValidator, MinValueValidator, RegexValidator
+    DecimalValidator,
+    MaxLengthValidator,
+    MaxValueValidator,
+    MinLengthValidator,
+    MinValueValidator,
+    RegexValidator,
 )
 from django.db import models
 
@@ -37,6 +41,7 @@ class DocStringExampleListView(APIView):
     get: A description of my GET operation.
     post: A description of my POST operation.
     """
+
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get(self, *args, **kwargs):
@@ -70,6 +75,7 @@ class ExampleGenericAPIView(generics.GenericAPIView):
 
     def get(self, *args, **kwargs):
         from datetime import datetime
+
         now = datetime.now()
 
         serializer = self.get_serializer(data=now.date(), datetime=now)
@@ -81,6 +87,7 @@ class ExampleGenericViewSet(GenericViewSet):
 
     def get(self, *args, **kwargs):
         from datetime import datetime
+
         now = datetime.now()
 
         serializer = self.get_serializer(data=now.date(), datetime=now)
@@ -110,10 +117,8 @@ class ExampleValidatedSerializer(serializers.Serializer):
         )
     )
     regex = serializers.CharField(
-        validators=(
-            RegexValidator(regex=r'[ABC]12{3}'),
-        ),
-        help_text='must have an A, B, or C followed by 1222'
+        validators=(RegexValidator(regex=r"[ABC]12{3}"),),
+        help_text="must have an A, B, or C followed by 1222",
     )
     lst = serializers.ListField(
         validators=(
@@ -121,23 +126,33 @@ class ExampleValidatedSerializer(serializers.Serializer):
             MinLengthValidator(limit_value=2),
         )
     )
-    decimal1 = serializers.DecimalField(max_digits=6, decimal_places=2, coerce_to_string=False)
-    decimal2 = serializers.DecimalField(max_digits=5, decimal_places=0, coerce_to_string=False,
-                                        validators=(DecimalValidator(max_digits=17, decimal_places=4),))
-    decimal3 = serializers.DecimalField(max_digits=8, decimal_places=2, coerce_to_string=True)
-    decimal4 = serializers.DecimalField(max_digits=8, decimal_places=2, coerce_to_string=True,
-                                        validators=(DecimalValidator(max_digits=17, decimal_places=4),))
+    decimal1 = serializers.DecimalField(
+        max_digits=6, decimal_places=2, coerce_to_string=False
+    )
+    decimal2 = serializers.DecimalField(
+        max_digits=5,
+        decimal_places=0,
+        coerce_to_string=False,
+        validators=(DecimalValidator(max_digits=17, decimal_places=4),),
+    )
+    decimal3 = serializers.DecimalField(
+        max_digits=8, decimal_places=2, coerce_to_string=True
+    )
+    decimal4 = serializers.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        coerce_to_string=True,
+        validators=(DecimalValidator(max_digits=17, decimal_places=4),),
+    )
     decimal5 = serializers.DecimalField(max_digits=6, decimal_places=2)
-    email = serializers.EmailField(default='foo@bar.com')
-    url = serializers.URLField(default='http://www.example.com', allow_null=True)
+    email = serializers.EmailField(default="foo@bar.com")
+    url = serializers.URLField(default="http://www.example.com", allow_null=True)
     uuid = serializers.UUIDField()
-    ip4 = serializers.IPAddressField(protocol='ipv4')
-    ip6 = serializers.IPAddressField(protocol='ipv6')
+    ip4 = serializers.IPAddressField(protocol="ipv4")
+    ip6 = serializers.IPAddressField(protocol="ipv6")
     ip = serializers.IPAddressField()
     duration = serializers.DurationField(
-        validators=(
-            MinValueValidator(timedelta(seconds=10)),
-        )
+        validators=(MinValueValidator(timedelta(seconds=10)),)
     )
 
 
@@ -145,10 +160,19 @@ class ExampleValidatedAPIView(generics.GenericAPIView):
     serializer_class = ExampleValidatedSerializer
 
     def get(self, *args, **kwargs):
-        serializer = self.get_serializer(integer=33, string='hello', regex='foo', decimal1=3.55,
-                                         decimal2=5.33, email='a@b.co',
-                                         url='http://localhost', uuid=uuid.uuid4(), ip4='127.0.0.1', ip6='::1',
-                                         ip='192.168.1.1')
+        serializer = self.get_serializer(
+            integer=33,
+            string="hello",
+            regex="foo",
+            decimal1=3.55,
+            decimal2=5.33,
+            email="a@b.co",
+            url="http://localhost",
+            uuid=uuid.uuid4(),
+            ip4="127.0.0.1",
+            ip6="::1",
+            ip="192.168.1.1",
+        )
         return Response(serializer.data)
 
 
@@ -186,6 +210,7 @@ class ExampleGenericAPIViewModel(generics.GenericAPIView):
 
     def get(self, *args, **kwargs):
         from datetime import datetime
+
         now = datetime.now()
 
         serializer = self.get_serializer(data=now.date(), datetime=now)
@@ -198,6 +223,7 @@ class ExampleAutoSchemaComponentName(generics.GenericAPIView):
 
     def get(self, *args, **kwargs):
         from datetime import datetime
+
         now = datetime.now()
 
         serializer = self.get_serializer(data=now.date(), datetime=now)
@@ -210,6 +236,7 @@ class ExampleAutoSchemaDuplicate1(generics.GenericAPIView):
 
     def get(self, *args, **kwargs):
         from datetime import datetime
+
         now = datetime.now()
 
         serializer = self.get_serializer(data=now.date(), datetime=now)
@@ -222,6 +249,7 @@ class ExampleAutoSchemaDuplicate2(generics.GenericAPIView):
 
     def get(self, *args, **kwargs):
         from datetime import datetime
+
         now = datetime.now()
 
         serializer = self.get_serializer(data=now.date(), datetime=now)

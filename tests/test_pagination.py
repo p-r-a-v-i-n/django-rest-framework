@@ -4,7 +4,12 @@ from django.db import models
 from django.test import TestCase
 
 from rest_framework import (
-    exceptions, filters, generics, pagination, serializers, status
+    exceptions,
+    filters,
+    generics,
+    pagination,
+    serializers,
+    status,
 )
 from rest_framework.pagination import PAGE_BREAK, PageLink
 from rest_framework.request import Request
@@ -29,39 +34,39 @@ class TestPaginationIntegration:
 
         class BasicPagination(pagination.PageNumberPagination):
             page_size = 5
-            page_size_query_param = 'page_size'
+            page_size_query_param = "page_size"
             max_page_size = 20
 
         self.view = generics.ListAPIView.as_view(
             serializer_class=PassThroughSerializer,
             queryset=range(1, 101),
             filter_backends=[EvenItemsOnly],
-            pagination_class=BasicPagination
+            pagination_class=BasicPagination,
         )
 
     def test_filtered_items_are_paginated(self):
-        request = factory.get('/', {'page': 2})
+        request = factory.get("/", {"page": 2})
         response = self.view(request)
         assert response.status_code == status.HTTP_200_OK
         assert response.data == {
-            'results': [12, 14, 16, 18, 20],
-            'previous': 'http://testserver/',
-            'next': 'http://testserver/?page=3',
-            'count': 50
+            "results": [12, 14, 16, 18, 20],
+            "previous": "http://testserver/",
+            "next": "http://testserver/?page=3",
+            "count": 50,
         }
 
     def test_setting_page_size(self):
         """
         When 'paginate_by_param' is set, the client may choose a page size.
         """
-        request = factory.get('/', {'page_size': 10})
+        request = factory.get("/", {"page_size": 10})
         response = self.view(request)
         assert response.status_code == status.HTTP_200_OK
         assert response.data == {
-            'results': [2, 4, 6, 8, 10, 12, 14, 16, 18, 20],
-            'previous': None,
-            'next': 'http://testserver/?page=2&page_size=10',
-            'count': 50
+            "results": [2, 4, 6, 8, 10, 12, 14, 16, 18, 20],
+            "previous": None,
+            "next": "http://testserver/?page=2&page_size=10",
+            "count": 50,
         }
 
     def test_setting_page_size_over_maximum(self):
@@ -69,70 +74,84 @@ class TestPaginationIntegration:
         When page_size parameter exceeds maximum allowable,
         then it should be capped to the maximum.
         """
-        request = factory.get('/', {'page_size': 1000})
+        request = factory.get("/", {"page_size": 1000})
         response = self.view(request)
         assert response.status_code == status.HTTP_200_OK
         assert response.data == {
-            'results': [
-                2, 4, 6, 8, 10, 12, 14, 16, 18, 20,
-                22, 24, 26, 28, 30, 32, 34, 36, 38, 40
+            "results": [
+                2,
+                4,
+                6,
+                8,
+                10,
+                12,
+                14,
+                16,
+                18,
+                20,
+                22,
+                24,
+                26,
+                28,
+                30,
+                32,
+                34,
+                36,
+                38,
+                40,
             ],
-            'previous': None,
-            'next': 'http://testserver/?page=2&page_size=1000',
-            'count': 50
+            "previous": None,
+            "next": "http://testserver/?page=2&page_size=1000",
+            "count": 50,
         }
 
     def test_setting_page_size_to_zero(self):
         """
         When page_size parameter is invalid it should return to the default.
         """
-        request = factory.get('/', {'page_size': 0})
+        request = factory.get("/", {"page_size": 0})
         response = self.view(request)
         assert response.status_code == status.HTTP_200_OK
         assert response.data == {
-            'results': [2, 4, 6, 8, 10],
-            'previous': None,
-            'next': 'http://testserver/?page=2&page_size=0',
-            'count': 50
+            "results": [2, 4, 6, 8, 10],
+            "previous": None,
+            "next": "http://testserver/?page=2&page_size=0",
+            "count": 50,
         }
 
     def test_additional_query_params_are_preserved(self):
-        request = factory.get('/', {'page': 2, 'filter': 'even'})
+        request = factory.get("/", {"page": 2, "filter": "even"})
         response = self.view(request)
         assert response.status_code == status.HTTP_200_OK
         assert response.data == {
-            'results': [12, 14, 16, 18, 20],
-            'previous': 'http://testserver/?filter=even',
-            'next': 'http://testserver/?filter=even&page=3',
-            'count': 50
+            "results": [12, 14, 16, 18, 20],
+            "previous": "http://testserver/?filter=even",
+            "next": "http://testserver/?filter=even&page=3",
+            "count": 50,
         }
 
     def test_empty_query_params_are_preserved(self):
-        request = factory.get('/', {'page': 2, 'filter': ''})
+        request = factory.get("/", {"page": 2, "filter": ""})
         response = self.view(request)
         assert response.status_code == status.HTTP_200_OK
         assert response.data == {
-            'results': [12, 14, 16, 18, 20],
-            'previous': 'http://testserver/?filter=',
-            'next': 'http://testserver/?filter=&page=3',
-            'count': 50
+            "results": [12, 14, 16, 18, 20],
+            "previous": "http://testserver/?filter=",
+            "next": "http://testserver/?filter=&page=3",
+            "count": 50,
         }
 
     def test_404_not_found_for_zero_page(self):
-        request = factory.get('/', {'page': '0'})
+        request = factory.get("/", {"page": "0"})
         response = self.view(request)
         assert response.status_code == status.HTTP_404_NOT_FOUND
-        assert response.data == {
-            'detail': 'Invalid page.'
-        }
+        assert response.data == {"detail": "Invalid page."}
 
     def test_404_not_found_for_invalid_page(self):
-        request = factory.get('/', {'page': 'invalid'})
+        request = factory.get("/", {"page": "invalid"})
         response = self.view(request)
         assert response.status_code == status.HTTP_404_NOT_FOUND
-        assert response.data == {
-            'detail': 'Invalid page.'
-        }
+        assert response.data == {"detail": "Invalid page."}
 
 
 class TestPaginationDisabledIntegration:
@@ -148,11 +167,11 @@ class TestPaginationDisabledIntegration:
         self.view = generics.ListAPIView.as_view(
             serializer_class=PassThroughSerializer,
             queryset=range(1, 101),
-            pagination_class=None
+            pagination_class=None,
         )
 
     def test_unpaginated_list(self):
-        request = factory.get('/', {'page': 2})
+        request = factory.get("/", {"page": 2})
         response = self.view(request)
         assert response.status_code == status.HTTP_200_OK
         assert response.data == list(range(1, 101))
@@ -180,7 +199,7 @@ class TestPageNumberPagination:
     def get_html_context(self):
         return self.pagination.get_html_context()
 
-    @pytest.mark.parametrize('url', ['/', '/?page='])
+    @pytest.mark.parametrize("url", ["/", "/?page="])
     def test_no_page_number(self, url):
         request = Request(factory.get(url))
         queryset = self.paginate_queryset(request)
@@ -188,111 +207,111 @@ class TestPageNumberPagination:
         context = self.get_html_context()
         assert queryset == [1, 2, 3, 4, 5]
         assert content == {
-            'results': [1, 2, 3, 4, 5],
-            'previous': None,
-            'next': 'http://testserver/?page=2',
-            'count': 100
+            "results": [1, 2, 3, 4, 5],
+            "previous": None,
+            "next": "http://testserver/?page=2",
+            "count": 100,
         }
         assert context == {
-            'previous_url': None,
-            'next_url': 'http://testserver/?page=2',
-            'page_links': [
-                PageLink('http://testserver/', 1, True, False),
-                PageLink('http://testserver/?page=2', 2, False, False),
-                PageLink('http://testserver/?page=3', 3, False, False),
+            "previous_url": None,
+            "next_url": "http://testserver/?page=2",
+            "page_links": [
+                PageLink("http://testserver/", 1, True, False),
+                PageLink("http://testserver/?page=2", 2, False, False),
+                PageLink("http://testserver/?page=3", 3, False, False),
                 PAGE_BREAK,
-                PageLink('http://testserver/?page=20', 20, False, False),
-            ]
+                PageLink("http://testserver/?page=20", 20, False, False),
+            ],
         }
         assert self.pagination.display_page_controls
         assert isinstance(self.pagination.to_html(), str)
 
     def test_second_page(self):
-        request = Request(factory.get('/', {'page': 2}))
+        request = Request(factory.get("/", {"page": 2}))
         queryset = self.paginate_queryset(request)
         content = self.get_paginated_content(queryset)
         context = self.get_html_context()
         assert queryset == [6, 7, 8, 9, 10]
         assert content == {
-            'results': [6, 7, 8, 9, 10],
-            'previous': 'http://testserver/',
-            'next': 'http://testserver/?page=3',
-            'count': 100
+            "results": [6, 7, 8, 9, 10],
+            "previous": "http://testserver/",
+            "next": "http://testserver/?page=3",
+            "count": 100,
         }
         assert context == {
-            'previous_url': 'http://testserver/',
-            'next_url': 'http://testserver/?page=3',
-            'page_links': [
-                PageLink('http://testserver/', 1, False, False),
-                PageLink('http://testserver/?page=2', 2, True, False),
-                PageLink('http://testserver/?page=3', 3, False, False),
+            "previous_url": "http://testserver/",
+            "next_url": "http://testserver/?page=3",
+            "page_links": [
+                PageLink("http://testserver/", 1, False, False),
+                PageLink("http://testserver/?page=2", 2, True, False),
+                PageLink("http://testserver/?page=3", 3, False, False),
                 PAGE_BREAK,
-                PageLink('http://testserver/?page=20', 20, False, False),
-            ]
+                PageLink("http://testserver/?page=20", 20, False, False),
+            ],
         }
 
     def test_last_page(self):
-        request = Request(factory.get('/', {'page': 'last'}))
+        request = Request(factory.get("/", {"page": "last"}))
         queryset = self.paginate_queryset(request)
         content = self.get_paginated_content(queryset)
         context = self.get_html_context()
         assert queryset == [96, 97, 98, 99, 100]
         assert content == {
-            'results': [96, 97, 98, 99, 100],
-            'previous': 'http://testserver/?page=19',
-            'next': None,
-            'count': 100
+            "results": [96, 97, 98, 99, 100],
+            "previous": "http://testserver/?page=19",
+            "next": None,
+            "count": 100,
         }
         assert context == {
-            'previous_url': 'http://testserver/?page=19',
-            'next_url': None,
-            'page_links': [
-                PageLink('http://testserver/', 1, False, False),
+            "previous_url": "http://testserver/?page=19",
+            "next_url": None,
+            "page_links": [
+                PageLink("http://testserver/", 1, False, False),
                 PAGE_BREAK,
-                PageLink('http://testserver/?page=18', 18, False, False),
-                PageLink('http://testserver/?page=19', 19, False, False),
-                PageLink('http://testserver/?page=20', 20, True, False),
-            ]
+                PageLink("http://testserver/?page=18", 18, False, False),
+                PageLink("http://testserver/?page=19", 19, False, False),
+                PageLink("http://testserver/?page=20", 20, True, False),
+            ],
         }
 
     def test_invalid_page(self):
-        request = Request(factory.get('/', {'page': 'invalid'}))
+        request = Request(factory.get("/", {"page": "invalid"}))
         with pytest.raises(exceptions.NotFound):
             self.paginate_queryset(request)
 
     def test_get_paginated_response_schema(self):
         unpaginated_schema = {
-            'type': 'object',
-            'item': {
-                'properties': {
-                    'test-property': {
-                        'type': 'integer',
+            "type": "object",
+            "item": {
+                "properties": {
+                    "test-property": {
+                        "type": "integer",
                     },
                 },
             },
         }
 
         assert self.pagination.get_paginated_response_schema(unpaginated_schema) == {
-            'type': 'object',
-            'required': ['count', 'results'],
-            'properties': {
-                'count': {
-                    'type': 'integer',
-                    'example': 123,
+            "type": "object",
+            "required": ["count", "results"],
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "example": 123,
                 },
-                'next': {
-                    'type': 'string',
-                    'nullable': True,
-                    'format': 'uri',
-                    'example': 'http://api.example.org/accounts/?page=4',
+                "next": {
+                    "type": "string",
+                    "nullable": True,
+                    "format": "uri",
+                    "example": "http://api.example.org/accounts/?page=4",
                 },
-                'previous': {
-                    'type': 'string',
-                    'nullable': True,
-                    'format': 'uri',
-                    'example': 'http://api.example.org/accounts/?page=2',
+                "previous": {
+                    "type": "string",
+                    "nullable": True,
+                    "format": "uri",
+                    "example": "http://api.example.org/accounts/?page=2",
                 },
-                'results': unpaginated_schema,
+                "results": unpaginated_schema,
             },
         }
 
@@ -328,29 +347,31 @@ class TestPageNumberPaginationOverride:
         return self.pagination.get_html_context()
 
     def test_no_page_number(self):
-        request = Request(factory.get('/'))
+        request = Request(factory.get("/"))
         queryset = self.paginate_queryset(request)
         content = self.get_paginated_content(queryset)
         context = self.get_html_context()
         assert queryset == [1]
         assert content == {
-            'results': [1, ],
-            'previous': None,
-            'next': None,
-            'count': 1
+            "results": [
+                1,
+            ],
+            "previous": None,
+            "next": None,
+            "count": 1,
         }
         assert context == {
-            'previous_url': None,
-            'next_url': None,
-            'page_links': [
-                PageLink('http://testserver/', 1, True, False),
-            ]
+            "previous_url": None,
+            "next_url": None,
+            "page_links": [
+                PageLink("http://testserver/", 1, True, False),
+            ],
         }
         assert not self.pagination.display_page_controls
         assert isinstance(self.pagination.to_html(), str)
 
     def test_invalid_page(self):
-        request = Request(factory.get('/', {'page': 'invalid'}))
+        request = Request(factory.get("/", {"page": "invalid"}))
         with pytest.raises(exceptions.NotFound):
             self.paginate_queryset(request)
 
@@ -379,27 +400,27 @@ class TestLimitOffset:
         return self.pagination.get_html_context()
 
     def test_no_offset(self):
-        request = Request(factory.get('/', {'limit': 5}))
+        request = Request(factory.get("/", {"limit": 5}))
         queryset = self.paginate_queryset(request)
         content = self.get_paginated_content(queryset)
         context = self.get_html_context()
         assert queryset == [1, 2, 3, 4, 5]
         assert content == {
-            'results': [1, 2, 3, 4, 5],
-            'previous': None,
-            'next': 'http://testserver/?limit=5&offset=5',
-            'count': 100
+            "results": [1, 2, 3, 4, 5],
+            "previous": None,
+            "next": "http://testserver/?limit=5&offset=5",
+            "count": 100,
         }
         assert context == {
-            'previous_url': None,
-            'next_url': 'http://testserver/?limit=5&offset=5',
-            'page_links': [
-                PageLink('http://testserver/?limit=5', 1, True, False),
-                PageLink('http://testserver/?limit=5&offset=5', 2, False, False),
-                PageLink('http://testserver/?limit=5&offset=10', 3, False, False),
+            "previous_url": None,
+            "next_url": "http://testserver/?limit=5&offset=5",
+            "page_links": [
+                PageLink("http://testserver/?limit=5", 1, True, False),
+                PageLink("http://testserver/?limit=5&offset=5", 2, False, False),
+                PageLink("http://testserver/?limit=5&offset=10", 3, False, False),
                 PAGE_BREAK,
-                PageLink('http://testserver/?limit=5&offset=95', 20, False, False),
-            ]
+                PageLink("http://testserver/?limit=5&offset=95", 20, False, False),
+            ],
         }
         assert self.pagination.display_page_controls
         assert isinstance(self.pagination.to_html(), str)
@@ -407,7 +428,8 @@ class TestLimitOffset:
     def test_pagination_not_applied_if_limit_or_default_limit_not_set(self):
         class MockPagination(pagination.LimitOffsetPagination):
             default_limit = None
-        request = Request(factory.get('/'))
+
+        request = Request(factory.get("/"))
         queryset = MockPagination().paginate_queryset(self.queryset, request)
         assert queryset is None
 
@@ -417,104 +439,104 @@ class TestLimitOffset:
         * The first page should still be offset zero.
         * We may end up displaying an extra page in the pagination control.
         """
-        request = Request(factory.get('/', {'limit': 5, 'offset': 1}))
+        request = Request(factory.get("/", {"limit": 5, "offset": 1}))
         queryset = self.paginate_queryset(request)
         content = self.get_paginated_content(queryset)
         context = self.get_html_context()
         assert queryset == [2, 3, 4, 5, 6]
         assert content == {
-            'results': [2, 3, 4, 5, 6],
-            'previous': 'http://testserver/?limit=5',
-            'next': 'http://testserver/?limit=5&offset=6',
-            'count': 100
+            "results": [2, 3, 4, 5, 6],
+            "previous": "http://testserver/?limit=5",
+            "next": "http://testserver/?limit=5&offset=6",
+            "count": 100,
         }
         assert context == {
-            'previous_url': 'http://testserver/?limit=5',
-            'next_url': 'http://testserver/?limit=5&offset=6',
-            'page_links': [
-                PageLink('http://testserver/?limit=5', 1, False, False),
-                PageLink('http://testserver/?limit=5&offset=1', 2, True, False),
-                PageLink('http://testserver/?limit=5&offset=6', 3, False, False),
+            "previous_url": "http://testserver/?limit=5",
+            "next_url": "http://testserver/?limit=5&offset=6",
+            "page_links": [
+                PageLink("http://testserver/?limit=5", 1, False, False),
+                PageLink("http://testserver/?limit=5&offset=1", 2, True, False),
+                PageLink("http://testserver/?limit=5&offset=6", 3, False, False),
                 PAGE_BREAK,
-                PageLink('http://testserver/?limit=5&offset=96', 21, False, False),
-            ]
+                PageLink("http://testserver/?limit=5&offset=96", 21, False, False),
+            ],
         }
 
     def test_first_offset(self):
-        request = Request(factory.get('/', {'limit': 5, 'offset': 5}))
+        request = Request(factory.get("/", {"limit": 5, "offset": 5}))
         queryset = self.paginate_queryset(request)
         content = self.get_paginated_content(queryset)
         context = self.get_html_context()
         assert queryset == [6, 7, 8, 9, 10]
         assert content == {
-            'results': [6, 7, 8, 9, 10],
-            'previous': 'http://testserver/?limit=5',
-            'next': 'http://testserver/?limit=5&offset=10',
-            'count': 100
+            "results": [6, 7, 8, 9, 10],
+            "previous": "http://testserver/?limit=5",
+            "next": "http://testserver/?limit=5&offset=10",
+            "count": 100,
         }
         assert context == {
-            'previous_url': 'http://testserver/?limit=5',
-            'next_url': 'http://testserver/?limit=5&offset=10',
-            'page_links': [
-                PageLink('http://testserver/?limit=5', 1, False, False),
-                PageLink('http://testserver/?limit=5&offset=5', 2, True, False),
-                PageLink('http://testserver/?limit=5&offset=10', 3, False, False),
+            "previous_url": "http://testserver/?limit=5",
+            "next_url": "http://testserver/?limit=5&offset=10",
+            "page_links": [
+                PageLink("http://testserver/?limit=5", 1, False, False),
+                PageLink("http://testserver/?limit=5&offset=5", 2, True, False),
+                PageLink("http://testserver/?limit=5&offset=10", 3, False, False),
                 PAGE_BREAK,
-                PageLink('http://testserver/?limit=5&offset=95', 20, False, False),
-            ]
+                PageLink("http://testserver/?limit=5&offset=95", 20, False, False),
+            ],
         }
 
     def test_middle_offset(self):
-        request = Request(factory.get('/', {'limit': 5, 'offset': 10}))
+        request = Request(factory.get("/", {"limit": 5, "offset": 10}))
         queryset = self.paginate_queryset(request)
         content = self.get_paginated_content(queryset)
         context = self.get_html_context()
         assert queryset == [11, 12, 13, 14, 15]
         assert content == {
-            'results': [11, 12, 13, 14, 15],
-            'previous': 'http://testserver/?limit=5&offset=5',
-            'next': 'http://testserver/?limit=5&offset=15',
-            'count': 100
+            "results": [11, 12, 13, 14, 15],
+            "previous": "http://testserver/?limit=5&offset=5",
+            "next": "http://testserver/?limit=5&offset=15",
+            "count": 100,
         }
         assert context == {
-            'previous_url': 'http://testserver/?limit=5&offset=5',
-            'next_url': 'http://testserver/?limit=5&offset=15',
-            'page_links': [
-                PageLink('http://testserver/?limit=5', 1, False, False),
-                PageLink('http://testserver/?limit=5&offset=5', 2, False, False),
-                PageLink('http://testserver/?limit=5&offset=10', 3, True, False),
-                PageLink('http://testserver/?limit=5&offset=15', 4, False, False),
+            "previous_url": "http://testserver/?limit=5&offset=5",
+            "next_url": "http://testserver/?limit=5&offset=15",
+            "page_links": [
+                PageLink("http://testserver/?limit=5", 1, False, False),
+                PageLink("http://testserver/?limit=5&offset=5", 2, False, False),
+                PageLink("http://testserver/?limit=5&offset=10", 3, True, False),
+                PageLink("http://testserver/?limit=5&offset=15", 4, False, False),
                 PAGE_BREAK,
-                PageLink('http://testserver/?limit=5&offset=95', 20, False, False),
-            ]
+                PageLink("http://testserver/?limit=5&offset=95", 20, False, False),
+            ],
         }
 
     def test_ending_offset(self):
-        request = Request(factory.get('/', {'limit': 5, 'offset': 95}))
+        request = Request(factory.get("/", {"limit": 5, "offset": 95}))
         queryset = self.paginate_queryset(request)
         content = self.get_paginated_content(queryset)
         context = self.get_html_context()
         assert queryset == [96, 97, 98, 99, 100]
         assert content == {
-            'results': [96, 97, 98, 99, 100],
-            'previous': 'http://testserver/?limit=5&offset=90',
-            'next': None,
-            'count': 100
+            "results": [96, 97, 98, 99, 100],
+            "previous": "http://testserver/?limit=5&offset=90",
+            "next": None,
+            "count": 100,
         }
         assert context == {
-            'previous_url': 'http://testserver/?limit=5&offset=90',
-            'next_url': None,
-            'page_links': [
-                PageLink('http://testserver/?limit=5', 1, False, False),
+            "previous_url": "http://testserver/?limit=5&offset=90",
+            "next_url": None,
+            "page_links": [
+                PageLink("http://testserver/?limit=5", 1, False, False),
                 PAGE_BREAK,
-                PageLink('http://testserver/?limit=5&offset=85', 18, False, False),
-                PageLink('http://testserver/?limit=5&offset=90', 19, False, False),
-                PageLink('http://testserver/?limit=5&offset=95', 20, True, False),
-            ]
+                PageLink("http://testserver/?limit=5&offset=85", 18, False, False),
+                PageLink("http://testserver/?limit=5&offset=90", 19, False, False),
+                PageLink("http://testserver/?limit=5&offset=95", 20, True, False),
+            ],
         }
 
     def test_erroneous_offset(self):
-        request = Request(factory.get('/', {'limit': 5, 'offset': 1000}))
+        request = Request(factory.get("/", {"limit": 5, "offset": 1000}))
         queryset = self.paginate_queryset(request)
         self.get_paginated_content(queryset)
         self.get_html_context()
@@ -523,7 +545,7 @@ class TestLimitOffset:
         """
         An invalid offset query param should be treated as 0.
         """
-        request = Request(factory.get('/', {'limit': 5, 'offset': 'invalid'}))
+        request = Request(factory.get("/", {"limit": 5, "offset": "invalid"}))
         queryset = self.paginate_queryset(request)
         assert queryset == [1, 2, 3, 4, 5]
 
@@ -531,27 +553,27 @@ class TestLimitOffset:
         """
         An invalid limit query param should be ignored in favor of the default.
         """
-        request = Request(factory.get('/', {'limit': 'invalid', 'offset': 0}))
+        request = Request(factory.get("/", {"limit": "invalid", "offset": 0}))
         queryset = self.paginate_queryset(request)
         content = self.get_paginated_content(queryset)
         next_limit = self.pagination.default_limit
         next_offset = self.pagination.default_limit
-        next_url = f'http://testserver/?limit={next_limit}&offset={next_offset}'
+        next_url = f"http://testserver/?limit={next_limit}&offset={next_offset}"
         assert queryset == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        assert content.get('next') == next_url
+        assert content.get("next") == next_url
 
     def test_zero_limit(self):
         """
         An zero limit query param should be ignored in favor of the default.
         """
-        request = Request(factory.get('/', {'limit': 0, 'offset': 0}))
+        request = Request(factory.get("/", {"limit": 0, "offset": 0}))
         queryset = self.paginate_queryset(request)
         content = self.get_paginated_content(queryset)
         next_limit = self.pagination.default_limit
         next_offset = self.pagination.default_limit
-        next_url = f'http://testserver/?limit={next_limit}&offset={next_offset}'
+        next_url = f"http://testserver/?limit={next_limit}&offset={next_offset}"
         assert queryset == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        assert content.get('next') == next_url
+        assert content.get("next") == next_url
 
     def test_max_limit(self):
         """
@@ -559,101 +581,100 @@ class TestLimitOffset:
         requested limit is greater than the max_limit
         """
         offset = 50
-        request = Request(factory.get('/', {'limit': '11235', 'offset': offset}))
+        request = Request(factory.get("/", {"limit": "11235", "offset": offset}))
         queryset = self.paginate_queryset(request)
         content = self.get_paginated_content(queryset)
         max_limit = self.pagination.max_limit
         next_offset = offset + max_limit
         prev_offset = offset - max_limit
-        base_url = f'http://testserver/?limit={max_limit}'
-        next_url = base_url + f'&offset={next_offset}'
-        prev_url = base_url + f'&offset={prev_offset}'
+        base_url = f"http://testserver/?limit={max_limit}"
+        next_url = base_url + f"&offset={next_offset}"
+        prev_url = base_url + f"&offset={prev_offset}"
         assert queryset == list(range(51, 66))
-        assert content.get('next') == next_url
-        assert content.get('previous') == prev_url
+        assert content.get("next") == next_url
+        assert content.get("previous") == prev_url
 
     def test_get_paginated_response_schema(self):
         unpaginated_schema = {
-            'type': 'object',
-            'item': {
-                'properties': {
-                    'test-property': {
-                        'type': 'integer',
+            "type": "object",
+            "item": {
+                "properties": {
+                    "test-property": {
+                        "type": "integer",
                     },
                 },
             },
         }
 
         assert self.pagination.get_paginated_response_schema(unpaginated_schema) == {
-            'type': 'object',
-            'required': ['count', 'results'],
-            'properties': {
-                'count': {
-                    'type': 'integer',
-                    'example': 123,
+            "type": "object",
+            "required": ["count", "results"],
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "example": 123,
                 },
-                'next': {
-                    'type': 'string',
-                    'nullable': True,
-                    'format': 'uri',
-                    'example': 'http://api.example.org/accounts/?offset=400&limit=100',
+                "next": {
+                    "type": "string",
+                    "nullable": True,
+                    "format": "uri",
+                    "example": "http://api.example.org/accounts/?offset=400&limit=100",
                 },
-                'previous': {
-                    'type': 'string',
-                    'nullable': True,
-                    'format': 'uri',
-                    'example': 'http://api.example.org/accounts/?offset=200&limit=100',
+                "previous": {
+                    "type": "string",
+                    "nullable": True,
+                    "format": "uri",
+                    "example": "http://api.example.org/accounts/?offset=200&limit=100",
                 },
-                'results': unpaginated_schema,
+                "results": unpaginated_schema,
             },
         }
 
 
 class CursorPaginationTestsMixin:
-
     def test_invalid_cursor(self):
-        request = Request(factory.get('/', {'cursor': '123'}))
+        request = Request(factory.get("/", {"cursor": "123"}))
         with pytest.raises(exceptions.NotFound):
             self.pagination.paginate_queryset(self.queryset, request)
 
     def test_use_with_ordering_filter(self):
         class MockView:
             filter_backends = (filters.OrderingFilter,)
-            ordering_fields = ['username', 'created']
-            ordering = 'created'
+            ordering_fields = ["username", "created"]
+            ordering = "created"
 
-        request = Request(factory.get('/', {'ordering': 'username'}))
+        request = Request(factory.get("/", {"ordering": "username"}))
         ordering = self.pagination.get_ordering(request, [], MockView())
-        assert ordering == ('username',)
+        assert ordering == ("username",)
 
-        request = Request(factory.get('/', {'ordering': '-username'}))
+        request = Request(factory.get("/", {"ordering": "-username"}))
         ordering = self.pagination.get_ordering(request, [], MockView())
-        assert ordering == ('-username',)
+        assert ordering == ("-username",)
 
-        request = Request(factory.get('/', {'ordering': 'invalid'}))
+        request = Request(factory.get("/", {"ordering": "invalid"}))
         ordering = self.pagination.get_ordering(request, [], MockView())
-        assert ordering == ('created',)
+        assert ordering == ("created",)
 
     def test_use_with_ordering_filter_without_ordering_default_value(self):
         class MockView:
             filter_backends = (filters.OrderingFilter,)
-            ordering_fields = ['username', 'created']
+            ordering_fields = ["username", "created"]
 
-        request = Request(factory.get('/'))
+        request = Request(factory.get("/"))
         ordering = self.pagination.get_ordering(request, [], MockView())
         # it gets the value of `ordering` provided by CursorPagination
-        assert ordering == ('created',)
+        assert ordering == ("created",)
 
-        request = Request(factory.get('/', {'ordering': 'username'}))
+        request = Request(factory.get("/", {"ordering": "username"}))
         ordering = self.pagination.get_ordering(request, [], MockView())
-        assert ordering == ('username',)
+        assert ordering == ("username",)
 
-        request = Request(factory.get('/', {'ordering': 'invalid'}))
+        request = Request(factory.get("/", {"ordering": "invalid"}))
         ordering = self.pagination.get_ordering(request, [], MockView())
-        assert ordering == ('created',)
+        assert ordering == ("created",)
 
     def test_cursor_pagination(self):
-        (previous, current, next, previous_url, next_url) = self.get_pages('/')
+        (previous, current, next, previous_url, next_url) = self.get_pages("/")
 
         assert previous is None
         assert current == [1, 1, 1, 1, 1]
@@ -768,7 +789,9 @@ class CursorPaginationTestsMixin:
         assert next_url is None
 
     def test_cursor_pagination_with_page_size(self):
-        (previous, current, next, previous_url, next_url) = self.get_pages('/?page_size=20')
+        (previous, current, next, previous_url, next_url) = self.get_pages(
+            "/?page_size=20"
+        )
 
         assert previous is None
         assert current == [1, 1, 1, 1, 1, 1, 2, 3, 4, 4, 4, 4, 5, 6, 7, 7, 7, 7, 7, 7]
@@ -780,7 +803,9 @@ class CursorPaginationTestsMixin:
         assert next is None
 
     def test_cursor_pagination_with_page_size_over_limit(self):
-        (previous, current, next, previous_url, next_url) = self.get_pages('/?page_size=30')
+        (previous, current, next, previous_url, next_url) = self.get_pages(
+            "/?page_size=30"
+        )
 
         assert previous is None
         assert current == [1, 1, 1, 1, 1, 1, 2, 3, 4, 4, 4, 4, 5, 6, 7, 7, 7, 7, 7, 7]
@@ -792,7 +817,9 @@ class CursorPaginationTestsMixin:
         assert next is None
 
     def test_cursor_pagination_with_page_size_zero(self):
-        (previous, current, next, previous_url, next_url) = self.get_pages('/?page_size=0')
+        (previous, current, next, previous_url, next_url) = self.get_pages(
+            "/?page_size=0"
+        )
 
         assert previous is None
         assert current == [1, 1, 1, 1, 1]
@@ -859,7 +886,9 @@ class CursorPaginationTestsMixin:
         assert next == [1, 2, 3, 4, 4]
 
     def test_cursor_pagination_with_page_size_negative(self):
-        (previous, current, next, previous_url, next_url) = self.get_pages('/?page_size=-5')
+        (previous, current, next, previous_url, next_url) = self.get_pages(
+            "/?page_size=-5"
+        )
 
         assert previous is None
         assert current == [1, 1, 1, 1, 1]
@@ -927,33 +956,33 @@ class CursorPaginationTestsMixin:
 
     def test_get_paginated_response_schema(self):
         unpaginated_schema = {
-            'type': 'object',
-            'item': {
-                'properties': {
-                    'test-property': {
-                        'type': 'integer',
+            "type": "object",
+            "item": {
+                "properties": {
+                    "test-property": {
+                        "type": "integer",
                     },
                 },
             },
         }
 
         assert self.pagination.get_paginated_response_schema(unpaginated_schema) == {
-            'type': 'object',
-            'required': ['results'],
-            'properties': {
-                'next': {
-                    'type': 'string',
-                    'nullable': True,
-                    'format': 'uri',
-                    'example': 'http://api.example.org/accounts/?cursor=cD00ODY%3D"'
+            "type": "object",
+            "required": ["results"],
+            "properties": {
+                "next": {
+                    "type": "string",
+                    "nullable": True,
+                    "format": "uri",
+                    "example": 'http://api.example.org/accounts/?cursor=cD00ODY%3D"',
                 },
-                'previous': {
-                    'type': 'string',
-                    'nullable': True,
-                    'format': 'uri',
-                    'example': 'http://api.example.org/accounts/?cursor=cj0xJnA9NDg3'
+                "previous": {
+                    "type": "string",
+                    "nullable": True,
+                    "format": "uri",
+                    "example": "http://api.example.org/accounts/?cursor=cj0xJnA9NDg3",
                 },
-                'results': unpaginated_schema,
+                "results": unpaginated_schema,
             },
         }
 
@@ -974,19 +1003,17 @@ class TestCursorPagination(CursorPaginationTestsMixin):
 
             def filter(self, created__gt=None, created__lt=None):
                 if created__gt is not None:
-                    return MockQuerySet([
-                        item for item in self.items
-                        if item.created > int(created__gt)
-                    ])
+                    return MockQuerySet(
+                        [item for item in self.items if item.created > int(created__gt)]
+                    )
 
                 assert created__lt is not None
-                return MockQuerySet([
-                    item for item in self.items
-                    if item.created < int(created__lt)
-                ])
+                return MockQuerySet(
+                    [item for item in self.items if item.created < int(created__lt)]
+                )
 
             def order_by(self, *ordering):
-                if ordering[0].startswith('-'):
+                if ordering[0].startswith("-"):
                     return MockQuerySet(list(reversed(self.items)))
                 return self
 
@@ -995,21 +1022,48 @@ class TestCursorPagination(CursorPaginationTestsMixin):
 
         class ExamplePagination(pagination.CursorPagination):
             page_size = 5
-            page_size_query_param = 'page_size'
+            page_size_query_param = "page_size"
             max_page_size = 20
-            ordering = 'created'
+            ordering = "created"
 
         self.pagination = ExamplePagination()
-        self.queryset = MockQuerySet([
-            MockObject(idx) for idx in [
-                1, 1, 1, 1, 1,
-                1, 2, 3, 4, 4,
-                4, 4, 5, 6, 7,
-                7, 7, 7, 7, 7,
-                7, 7, 7, 8, 9,
-                9, 9, 9, 9, 9
+        self.queryset = MockQuerySet(
+            [
+                MockObject(idx)
+                for idx in [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    2,
+                    3,
+                    4,
+                    4,
+                    4,
+                    4,
+                    5,
+                    6,
+                    7,
+                    7,
+                    7,
+                    7,
+                    7,
+                    7,
+                    7,
+                    7,
+                    7,
+                    8,
+                    9,
+                    9,
+                    9,
+                    9,
+                    9,
+                    9,
+                ]
             ]
-        ])
+        )
 
     def get_pages(self, url):
         """
@@ -1053,18 +1107,42 @@ class TestCursorPaginationWithValueQueryset(CursorPaginationTestsMixin, TestCase
     def setUp(self):
         class ExamplePagination(pagination.CursorPagination):
             page_size = 5
-            page_size_query_param = 'page_size'
+            page_size_query_param = "page_size"
             max_page_size = 20
-            ordering = 'created'
+            ordering = "created"
 
         self.pagination = ExamplePagination()
         data = [
-            1, 1, 1, 1, 1,
-            1, 2, 3, 4, 4,
-            4, 4, 5, 6, 7,
-            7, 7, 7, 7, 7,
-            7, 7, 7, 8, 9,
-            9, 9, 9, 9, 9
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            2,
+            3,
+            4,
+            4,
+            4,
+            4,
+            5,
+            6,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            8,
+            9,
+            9,
+            9,
+            9,
+            9,
+            9,
         ]
         for idx in data:
             CursorPaginationModel.objects.create(created=idx)
@@ -1079,7 +1157,7 @@ class TestCursorPaginationWithValueQueryset(CursorPaginationTestsMixin, TestCase
         """
         request = Request(factory.get(url))
         queryset = self.pagination.paginate_queryset(self.queryset, request)
-        current = [item['created'] for item in queryset]
+        current = [item["created"] for item in queryset]
 
         next_url = self.pagination.get_next_link()
         previous_url = self.pagination.get_previous_link()
@@ -1087,14 +1165,14 @@ class TestCursorPaginationWithValueQueryset(CursorPaginationTestsMixin, TestCase
         if next_url is not None:
             request = Request(factory.get(next_url))
             queryset = self.pagination.paginate_queryset(self.queryset, request)
-            next = [item['created'] for item in queryset]
+            next = [item["created"] for item in queryset]
         else:
             next = None
 
         if previous_url is not None:
             request = Request(factory.get(previous_url))
             queryset = self.pagination.paginate_queryset(self.queryset, request)
-            previous = [item['created'] for item in queryset]
+            previous = [item["created"] for item in queryset]
         else:
             previous = None
 

@@ -8,11 +8,9 @@ class TestSettings(TestCase):
         """
         Make sure import errors are captured and raised sensibly.
         """
-        settings = APISettings({
-            'DEFAULT_RENDERER_CLASSES': [
-                'tests.invalid_module.InvalidClassName'
-            ]
-        })
+        settings = APISettings(
+            {"DEFAULT_RENDERER_CLASSES": ["tests.invalid_module.InvalidClassName"]}
+        )
         with self.assertRaises(ImportError):
             settings.DEFAULT_RENDERER_CLASSES
 
@@ -22,9 +20,7 @@ class TestSettings(TestCase):
         is set.
         """
         with self.assertRaises(RuntimeError):
-            APISettings({
-                'MAX_PAGINATE_BY': 100
-            })
+            APISettings({"MAX_PAGINATE_BY": 100})
 
     def test_compatibility_with_override_settings(self):
         """
@@ -38,7 +34,7 @@ class TestSettings(TestCase):
         """
         assert api_settings.PAGE_SIZE is None, "Checking a known default should be None"
 
-        with override_settings(REST_FRAMEWORK={'PAGE_SIZE': 10}):
+        with override_settings(REST_FRAMEWORK={"PAGE_SIZE": 10}):
             assert api_settings.PAGE_SIZE == 10, "Setting should have been updated"
 
         assert api_settings.PAGE_SIZE is None, "Setting should have been restored"
@@ -56,27 +52,30 @@ class TestSettings(TestCase):
         self.assertIsNone(api_settings.PAGE_SIZE)
         self.assertIsNone(api_settings.DEFAULT_PAGINATION_CLASS)
 
-        pagination_error = get_pagination_error('rest_framework.W001')
+        pagination_error = get_pagination_error("rest_framework.W001")
         self.assertIsNone(pagination_error)
 
-        with override_settings(REST_FRAMEWORK={'PAGE_SIZE': 10}):
-            pagination_error = get_pagination_error('rest_framework.W001')
+        with override_settings(REST_FRAMEWORK={"PAGE_SIZE": 10}):
+            pagination_error = get_pagination_error("rest_framework.W001")
             self.assertIsNotNone(pagination_error)
 
-        default_pagination_class = 'rest_framework.pagination.PageNumberPagination'
-        with override_settings(REST_FRAMEWORK={'PAGE_SIZE': 10, 'DEFAULT_PAGINATION_CLASS': default_pagination_class}):
-            pagination_error = get_pagination_error('rest_framework.W001')
+        default_pagination_class = "rest_framework.pagination.PageNumberPagination"
+        with override_settings(
+            REST_FRAMEWORK={
+                "PAGE_SIZE": 10,
+                "DEFAULT_PAGINATION_CLASS": default_pagination_class,
+            }
+        ):
+            pagination_error = get_pagination_error("rest_framework.W001")
             self.assertIsNone(pagination_error)
 
 
 class TestSettingTypes(TestCase):
     def test_settings_consistently_coerced_to_list(self):
-        settings = APISettings({
-            'DEFAULT_THROTTLE_CLASSES': ('rest_framework.throttling.BaseThrottle',)
-        })
+        settings = APISettings(
+            {"DEFAULT_THROTTLE_CLASSES": ("rest_framework.throttling.BaseThrottle",)}
+        )
         self.assertTrue(isinstance(settings.DEFAULT_THROTTLE_CLASSES, list))
 
-        settings = APISettings({
-            'DEFAULT_THROTTLE_CLASSES': ()
-        })
+        settings = APISettings({"DEFAULT_THROTTLE_CLASSES": ()})
         self.assertTrue(isinstance(settings.DEFAULT_THROTTLE_CLASSES, list))

@@ -10,62 +10,61 @@ from django.urls import path
 
 from rest_framework import fields, parsers, renderers, serializers, status
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import (
-    api_view, parser_classes, renderer_classes
-)
+from rest_framework.decorators import api_view, parser_classes, renderer_classes
 from rest_framework.response import Response
 from rest_framework.test import (
-    APIClient, APIRequestFactory, URLPatternsTestCase, force_authenticate
+    APIClient,
+    APIRequestFactory,
+    URLPatternsTestCase,
+    force_authenticate,
 )
 from rest_framework.views import APIView
 
 
-@api_view(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'])
+@api_view(["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
 def view(request):
-    data = {'auth': request.META.get('HTTP_AUTHORIZATION', b'')}
+    data = {"auth": request.META.get("HTTP_AUTHORIZATION", b"")}
     if request.user:
-        data['user'] = request.user.username
+        data["user"] = request.user.username
     if request.auth:
-        data['token'] = request.auth.key
+        data["token"] = request.auth.key
     return Response(data)
 
 
-@api_view(['GET', 'POST'])
+@api_view(["GET", "POST"])
 def session_view(request):
-    active_session = request.session.get('active_session', False)
-    request.session['active_session'] = True
-    return Response({
-        'active_session': active_session
-    })
+    active_session = request.session.get("active_session", False)
+    request.session["active_session"] = True
+    return Response({"active_session": active_session})
 
 
-@api_view(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'])
+@api_view(["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
 def redirect_view(request):
-    return redirect('/view/')
+    return redirect("/view/")
 
 
-@api_view(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'])
+@api_view(["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
 def redirect_307_308_view(request, code):
-    return HttpResponseRedirect('/view/', status=code)
+    return HttpResponseRedirect("/view/", status=code)
 
 
 class BasicSerializer(serializers.Serializer):
     flag = fields.BooleanField(default=lambda: True)
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 @parser_classes((parsers.JSONParser,))
 def post_json_view(request):
     return Response(request.data)
 
 
-@api_view(['DELETE'])
-@renderer_classes((renderers.JSONRenderer, ))
+@api_view(["DELETE"])
+@renderer_classes((renderers.JSONRenderer,))
 def delete_json_view(request):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 def post_view(request):
     serializer = BasicSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -73,17 +72,17 @@ def post_view(request):
 
 
 urlpatterns = [
-    path('view/', view),
-    path('session-view/', session_view),
-    path('redirect-view/', redirect_view),
-    path('redirect-view/<int:code>/', redirect_307_308_view),
-    path('post-json-view/', post_json_view),
-    path('delete-json-view/', delete_json_view),
-    path('post-view/', post_view),
+    path("view/", view),
+    path("session-view/", session_view),
+    path("redirect-view/", redirect_view),
+    path("redirect-view/<int:code>/", redirect_307_308_view),
+    path("post-json-view/", post_json_view),
+    path("delete-json-view/", delete_json_view),
+    path("post-view/", post_view),
 ]
 
 
-@override_settings(ROOT_URLCONF='tests.test_testing')
+@override_settings(ROOT_URLCONF="tests.test_testing")
 class TestAPITestClient(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -92,80 +91,80 @@ class TestAPITestClient(TestCase):
         """
         Setting `.credentials()` adds the required headers to each request.
         """
-        self.client.credentials(HTTP_AUTHORIZATION='example')
+        self.client.credentials(HTTP_AUTHORIZATION="example")
         for _ in range(0, 3):
-            response = self.client.get('/view/')
-            assert response.data['auth'] == 'example'
+            response = self.client.get("/view/")
+            assert response.data["auth"] == "example"
 
     def test_force_authenticate_with_user(self):
         """
         Setting `.force_authenticate()` with a user forcibly authenticates each
         request with that user.
         """
-        user = User.objects.create_user('example', 'example@example.com')
+        user = User.objects.create_user("example", "example@example.com")
 
         self.client.force_authenticate(user=user)
-        response = self.client.get('/view/')
+        response = self.client.get("/view/")
 
-        assert response.data['user'] == 'example'
-        assert 'token' not in response.data
+        assert response.data["user"] == "example"
+        assert "token" not in response.data
 
     def test_force_authenticate_with_token(self):
         """
         Setting `.force_authenticate()` with a token forcibly authenticates each
         request with that token.
         """
-        user = User.objects.create_user('example', 'example@example.com')
-        token = Token.objects.create(key='xyz', user=user)
+        user = User.objects.create_user("example", "example@example.com")
+        token = Token.objects.create(key="xyz", user=user)
 
         self.client.force_authenticate(token=token)
-        response = self.client.get('/view/')
+        response = self.client.get("/view/")
 
-        assert response.data['token'] == 'xyz'
-        assert 'user' not in response.data
+        assert response.data["token"] == "xyz"
+        assert "user" not in response.data
 
     def test_force_authenticate_with_user_and_token(self):
         """
         Setting `.force_authenticate()` with a user and token forcibly
         authenticates each request with that user and token.
         """
-        user = User.objects.create_user('example', 'example@example.com')
-        token = Token.objects.create(key='xyz', user=user)
+        user = User.objects.create_user("example", "example@example.com")
+        token = Token.objects.create(key="xyz", user=user)
 
         self.client.force_authenticate(user=user, token=token)
-        response = self.client.get('/view/')
+        response = self.client.get("/view/")
 
-        assert response.data['user'] == 'example'
-        assert response.data['token'] == 'xyz'
+        assert response.data["user"] == "example"
+        assert response.data["token"] == "xyz"
 
     def test_force_authenticate_with_sessions(self):
         """
         Setting `.force_authenticate()` forcibly authenticates each request.
         """
-        user = User.objects.create_user('example', 'example@example.com')
+        user = User.objects.create_user("example", "example@example.com")
         self.client.force_authenticate(user)
 
         # First request does not yet have an active session
-        response = self.client.get('/session-view/')
-        assert response.data['active_session'] is False
+        response = self.client.get("/session-view/")
+        assert response.data["active_session"] is False
 
         # Subsequent requests have an active session
-        response = self.client.get('/session-view/')
-        assert response.data['active_session'] is True
+        response = self.client.get("/session-view/")
+        assert response.data["active_session"] is True
 
         # Force authenticating with `None` user and token should also logout
         # the user session.
         self.client.force_authenticate(user=None, token=None)
-        response = self.client.get('/session-view/')
-        assert response.data['active_session'] is False
+        response = self.client.get("/session-view/")
+        assert response.data["active_session"] is False
 
     def test_csrf_exempt_by_default(self):
         """
         By default, the test client is CSRF exempt.
         """
-        User.objects.create_user('example', 'example@example.com', 'password')
-        self.client.login(username='example', password='password')
-        response = self.client.post('/view/')
+        User.objects.create_user("example", "example@example.com", "password")
+        self.client.login(username="example", password="password")
+        response = self.client.post("/view/")
         assert response.status_code == 200
 
     def test_explicitly_enforce_csrf_checks(self):
@@ -173,10 +172,10 @@ class TestAPITestClient(TestCase):
         The test client can enforce CSRF checks.
         """
         client = APIClient(enforce_csrf_checks=True)
-        User.objects.create_user('example', 'example@example.com', 'password')
-        client.login(username='example', password='password')
-        response = client.post('/view/')
-        expected = {'detail': 'CSRF Failed: CSRF cookie not set.'}
+        User.objects.create_user("example", "example@example.com", "password")
+        client.login(username="example", password="password")
+        response = client.post("/view/")
+        expected = {"detail": "CSRF Failed: CSRF cookie not set."}
         assert response.status_code == 403
         assert response.data == expected
 
@@ -184,35 +183,35 @@ class TestAPITestClient(TestCase):
         """
         `logout()` resets stored credentials
         """
-        self.client.credentials(HTTP_AUTHORIZATION='example')
-        response = self.client.get('/view/')
-        assert response.data['auth'] == 'example'
+        self.client.credentials(HTTP_AUTHORIZATION="example")
+        response = self.client.get("/view/")
+        assert response.data["auth"] == "example"
         self.client.logout()
-        response = self.client.get('/view/')
-        assert response.data['auth'] == b''
+        response = self.client.get("/view/")
+        assert response.data["auth"] == b""
 
     def test_logout_resets_force_authenticate(self):
         """
         `logout()` resets any `force_authenticate`
         """
-        user = User.objects.create_user('example', 'example@example.com', 'password')
+        user = User.objects.create_user("example", "example@example.com", "password")
         self.client.force_authenticate(user)
-        response = self.client.get('/view/')
-        assert response.data['user'] == 'example'
+        response = self.client.get("/view/")
+        assert response.data["user"] == "example"
         self.client.logout()
-        response = self.client.get('/view/')
-        assert response.data['user'] == ''
+        response = self.client.get("/view/")
+        assert response.data["user"] == ""
 
     def test_follow_redirect(self):
         """
         Follow redirect by setting follow argument.
         """
-        for method in ('get', 'post', 'put', 'patch', 'delete', 'options'):
+        for method in ("get", "post", "put", "patch", "delete", "options"):
             with self.subTest(method=method):
                 req_method = getattr(self.client, method)
-                response = req_method('/redirect-view/')
+                response = req_method("/redirect-view/")
                 assert response.status_code == 302
-                response = req_method('/redirect-view/', follow=True)
+                response = req_method("/redirect-view/", follow=True)
                 assert response.redirect_chain is not None
                 assert response.status_code == 200
 
@@ -221,18 +220,24 @@ class TestAPITestClient(TestCase):
         Follow redirect by setting follow argument, and make sure the following
         method called with appropriate kwargs.
         """
-        methods = ('get', 'post', 'put', 'patch', 'delete', 'options')
+        methods = ("get", "post", "put", "patch", "delete", "options")
         codes = (307, 308)
         for method, code in itertools.product(methods, codes):
             subtest_ctx = self.subTest(method=method, code=code)
-            patch_ctx = patch.object(self.client, method, side_effect=getattr(self.client, method))
+            patch_ctx = patch.object(
+                self.client, method, side_effect=getattr(self.client, method)
+            )
             with subtest_ctx, patch_ctx as req_method:
-                kwargs = {'data': {'example': 'test'}, 'format': 'json'}
-                response = req_method('/redirect-view/%s/' % code, follow=True, **kwargs)
+                kwargs = {"data": {"example": "test"}, "format": "json"}
+                response = req_method(
+                    "/redirect-view/%s/" % code, follow=True, **kwargs
+                )
                 assert response.redirect_chain is not None
                 assert response.status_code == 200
                 for _, call_args, call_kwargs in req_method.mock_calls:
-                    assert all(call_kwargs[k] == kwargs[k] for k in kwargs if k in call_kwargs)
+                    assert all(
+                        call_kwargs[k] == kwargs[k] for k in kwargs if k in call_kwargs
+                    )
 
     def test_invalid_multipart_data(self):
         """
@@ -240,32 +245,30 @@ class TestAPITestClient(TestCase):
         error if the user attempts to do so.
         """
         self.assertRaises(
-            AssertionError, self.client.post,
-            path='/view/', data={'valid': 123, 'invalid': {'a': 123}}
+            AssertionError,
+            self.client.post,
+            path="/view/",
+            data={"valid": 123, "invalid": {"a": 123}},
         )
 
     def test_empty_post_uses_default_boolean_value(self):
         response = self.client.post(
-            '/post-view/',
-            data=None,
-            content_type='application/json'
+            "/post-view/", data=None, content_type="application/json"
         )
         assert response.status_code == 200
         assert response.data == {"flag": True}
 
     def test_post_encodes_data_based_on_json_content_type(self):
-        data = {'data': True}
+        data = {"data": True}
         response = self.client.post(
-            '/post-json-view/',
-            data=data,
-            content_type='application/json'
+            "/post-json-view/", data=data, content_type="application/json"
         )
 
         assert response.status_code == 200
         assert response.data == data
 
     def test_delete_based_on_format(self):
-        response = self.client.delete('/delete-json-view/', format='json')
+        response = self.client.delete("/delete-json-view/", format="json")
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert response.data is None
 
@@ -275,9 +278,9 @@ class TestAPIRequestFactory(TestCase):
         """
         By default, the test client is CSRF exempt.
         """
-        user = User.objects.create_user('example', 'example@example.com', 'password')
+        user = User.objects.create_user("example", "example@example.com", "password")
         factory = APIRequestFactory()
-        request = factory.post('/view/')
+        request = factory.post("/view/")
         request.user = user
         response = view(request)
         assert response.status_code == 200
@@ -286,12 +289,12 @@ class TestAPIRequestFactory(TestCase):
         """
         The test client can enforce CSRF checks.
         """
-        user = User.objects.create_user('example', 'example@example.com', 'password')
+        user = User.objects.create_user("example", "example@example.com", "password")
         factory = APIRequestFactory(enforce_csrf_checks=True)
-        request = factory.post('/view/')
+        request = factory.post("/view/")
         request.user = user
         response = view(request)
-        expected = {'detail': 'CSRF Failed: CSRF cookie not set.'}
+        expected = {"detail": "CSRF Failed: CSRF cookie not set."}
         assert response.status_code == 403
         assert response.data == expected
 
@@ -305,17 +308,17 @@ class TestAPIRequestFactory(TestCase):
         class DummyView(APIView):  # Your custom view.
             ...
 
-        request = factory.get('/', {'demo': 'test'})
+        request = factory.get("/", {"demo": "test"})
         drf_request = DummyView().initialize_request(request)
-        assert drf_request.query_params == {'demo': ['test']}
+        assert drf_request.query_params == {"demo": ["test"]}
 
-        assert hasattr(drf_request, 'accepted_media_type') is False
+        assert hasattr(drf_request, "accepted_media_type") is False
         DummyView().initial(drf_request)
-        assert drf_request.accepted_media_type == 'application/json'
+        assert drf_request.accepted_media_type == "application/json"
 
-        request = factory.post('/', {'example': 'test'})
+        request = factory.post("/", {"example": "test"})
         drf_request = DummyView().initialize_request(request)
-        assert drf_request.data.get('example') == 'test'
+        assert drf_request.data.get("example") == "test"
 
     def test_invalid_format(self):
         """
@@ -324,58 +327,63 @@ class TestAPIRequestFactory(TestCase):
         """
         factory = APIRequestFactory()
         self.assertRaises(
-            AssertionError, factory.post,
-            path='/view/', data={'example': 1}, format='xml'
+            AssertionError,
+            factory.post,
+            path="/view/",
+            data={"example": 1},
+            format="xml",
         )
 
     def test_force_authenticate(self):
         """
         Setting `force_authenticate()` forcibly authenticates the request.
         """
-        user = User.objects.create_user('example', 'example@example.com')
+        user = User.objects.create_user("example", "example@example.com")
         factory = APIRequestFactory()
-        request = factory.get('/view')
+        request = factory.get("/view")
         force_authenticate(request, user=user)
         response = view(request)
-        assert response.data['user'] == 'example'
+        assert response.data["user"] == "example"
 
     def test_upload_file(self):
         # This is a 1x1 black png
-        simple_png = BytesIO(b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\x9cc````\x00\x00\x00\x05\x00\x01\xa5\xf6E@\x00\x00\x00\x00IEND\xaeB`\x82')
-        simple_png.name = 'test.png'
+        simple_png = BytesIO(
+            b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\x9cc````\x00\x00\x00\x05\x00\x01\xa5\xf6E@\x00\x00\x00\x00IEND\xaeB`\x82"
+        )
+        simple_png.name = "test.png"
         factory = APIRequestFactory()
-        factory.post('/', data={'image': simple_png})
+        factory.post("/", data={"image": simple_png})
 
     def test_request_factory_url_arguments(self):
         """
         This is a non regression test against #1461
         """
         factory = APIRequestFactory()
-        request = factory.get('/view/?demo=test')
-        assert dict(request.GET) == {'demo': ['test']}
-        request = factory.get('/view/', {'demo': 'test'})
-        assert dict(request.GET) == {'demo': ['test']}
+        request = factory.get("/view/?demo=test")
+        assert dict(request.GET) == {"demo": ["test"]}
+        request = factory.get("/view/", {"demo": "test"})
+        assert dict(request.GET) == {"demo": ["test"]}
 
     def test_request_factory_url_arguments_with_unicode(self):
         factory = APIRequestFactory()
-        request = factory.get('/view/?demo=testé')
-        assert dict(request.GET) == {'demo': ['testé']}
-        request = factory.get('/view/', {'demo': 'testé'})
-        assert dict(request.GET) == {'demo': ['testé']}
+        request = factory.get("/view/?demo=testé")
+        assert dict(request.GET) == {"demo": ["testé"]}
+        request = factory.get("/view/", {"demo": "testé"})
+        assert dict(request.GET) == {"demo": ["testé"]}
 
     def test_empty_request_content_type(self):
         factory = APIRequestFactory()
         request = factory.post(
-            '/post-view/',
+            "/post-view/",
             data=None,
-            content_type='application/json',
+            content_type="application/json",
         )
-        assert request.META['CONTENT_TYPE'] == 'application/json'
+        assert request.META["CONTENT_TYPE"] == "application/json"
 
 
 class TestUrlPatternTestCase(URLPatternsTestCase):
     urlpatterns = [
-        path('', view),
+        path("", view),
     ]
 
     @classmethod
@@ -391,10 +399,10 @@ class TestUrlPatternTestCase(URLPatternsTestCase):
         assert urlpatterns is not cls.urlpatterns
 
     def test_urlpatterns(self):
-        assert self.client.get('/').status_code == 200
+        assert self.client.get("/").status_code == 200
 
 
 class TestExistingPatterns(TestCase):
     def test_urlpatterns(self):
         # sanity test to ensure that this test module does not have a '/' route
-        assert self.client.get('/').status_code == 404
+        assert self.client.get("/").status_code == 404

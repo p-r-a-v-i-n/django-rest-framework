@@ -13,27 +13,27 @@ from rest_framework.views import APIView
 
 factory = APIRequestFactory()
 
-JSON_ERROR = 'JSON parse error - Expecting value:'
+JSON_ERROR = "JSON parse error - Expecting value:"
 
 
 class BasicView(APIView):
     def get(self, request, *args, **kwargs):
-        return Response({'method': 'GET'})
+        return Response({"method": "GET"})
 
     def post(self, request, *args, **kwargs):
-        return Response({'method': 'POST', 'data': request.data})
+        return Response({"method": "POST", "data": request.data})
 
 
-@api_view(['GET', 'POST', 'PUT', 'PATCH'])
+@api_view(["GET", "POST", "PUT", "PATCH"])
 def basic_view(request):
-    if request.method == 'GET':
-        return {'method': 'GET'}
-    elif request.method == 'POST':
-        return {'method': 'POST', 'data': request.data}
-    elif request.method == 'PUT':
-        return {'method': 'PUT', 'data': request.data}
-    elif request.method == 'PATCH':
-        return {'method': 'PATCH', 'data': request.data}
+    if request.method == "GET":
+        return {"method": "GET"}
+    elif request.method == "POST":
+        return {"method": "POST", "data": request.data}
+    elif request.method == "PUT":
+        return {"method": "PUT", "data": request.data}
+    elif request.method == "PATCH":
+        return {"method": "PATCH", "data": request.data}
 
 
 class ErrorView(APIView):
@@ -43,18 +43,18 @@ class ErrorView(APIView):
 
 def custom_handler(exc, context):
     if isinstance(exc, SyntaxError):
-        return Response({'error': 'SyntaxError'}, status=400)
-    return Response({'error': 'UnknownError'}, status=500)
+        return Response({"error": "SyntaxError"}, status=400)
+    return Response({"error": "UnknownError"}, status=500)
 
 
 class OverriddenSettingsView(APIView):
-    settings = APISettings({'EXCEPTION_HANDLER': custom_handler})
+    settings = APISettings({"EXCEPTION_HANDLER": custom_handler})
 
     def get(self, request, *args, **kwargs):
-        raise SyntaxError('request is invalid syntax')
+        raise SyntaxError("request is invalid syntax")
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 def error_view(request):
     raise Exception
 
@@ -66,7 +66,7 @@ def sanitise_json_error(error_dict):
     """
     ret = copy.copy(error_dict)
     chop = len(JSON_ERROR)
-    ret['detail'] = ret['detail'][:chop]
+    ret["detail"] = ret["detail"][:chop]
     return ret
 
 
@@ -75,11 +75,9 @@ class ClassBasedViewIntegrationTests(TestCase):
         self.view = BasicView.as_view()
 
     def test_400_parse_error(self):
-        request = factory.post('/', 'f00bar', content_type='application/json')
+        request = factory.post("/", "f00bar", content_type="application/json")
         response = self.view(request)
-        expected = {
-            'detail': JSON_ERROR
-        }
+        expected = {"detail": JSON_ERROR}
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert sanitise_json_error(response.data) == expected
 
@@ -89,11 +87,9 @@ class FunctionBasedViewIntegrationTests(TestCase):
         self.view = basic_view
 
     def test_400_parse_error(self):
-        request = factory.post('/', 'f00bar', content_type='application/json')
+        request = factory.post("/", "f00bar", content_type="application/json")
         response = self.view(request)
-        expected = {
-            'detail': JSON_ERROR
-        }
+        expected = {"detail": JSON_ERROR}
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert sanitise_json_error(response.data) == expected
 
@@ -103,7 +99,7 @@ class TestCustomExceptionHandler(TestCase):
         self.DEFAULT_HANDLER = api_settings.EXCEPTION_HANDLER
 
         def exception_handler(exc, request):
-            return Response('Error!', status=status.HTTP_400_BAD_REQUEST)
+            return Response("Error!", status=status.HTTP_400_BAD_REQUEST)
 
         api_settings.EXCEPTION_HANDLER = exception_handler
 
@@ -113,18 +109,18 @@ class TestCustomExceptionHandler(TestCase):
     def test_class_based_view_exception_handler(self):
         view = ErrorView.as_view()
 
-        request = factory.get('/', content_type='application/json')
+        request = factory.get("/", content_type="application/json")
         response = view(request)
-        expected = 'Error!'
+        expected = "Error!"
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data == expected
 
     def test_function_based_view_exception_handler(self):
         view = error_view
 
-        request = factory.get('/', content_type='application/json')
+        request = factory.get("/", content_type="application/json")
         response = view(request)
-        expected = 'Error!'
+        expected = "Error!"
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data == expected
 
@@ -134,13 +130,13 @@ class TestCustomSettings(TestCase):
         self.view = OverriddenSettingsView.as_view()
 
     def test_get_exception_handler(self):
-        request = factory.get('/', content_type='application/json')
+        request = factory.get("/", content_type="application/json")
         response = self.view(request)
         assert response.status_code == 400
-        assert response.data == {'error': 'SyntaxError'}
+        assert response.data == {"error": "SyntaxError"}
 
 
-@unittest.skipUnless(DJANGO_VERSION >= (5, 1), 'Only for Django 5.1+')
+@unittest.skipUnless(DJANGO_VERSION >= (5, 1), "Only for Django 5.1+")
 class TestLoginRequiredMiddlewareCompat(TestCase):
     def test_class_based_view_opted_out(self):
         class_based_view = BasicView.as_view()

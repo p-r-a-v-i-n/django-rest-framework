@@ -5,4 +5,4 @@ from tests.models import BasicModelWithUsers
 class BasicSerializer(ModelSerializer):
     class Meta:
         model = BasicModelWithUsers
-        fields = '__all__'
+        fields = "__all__"
