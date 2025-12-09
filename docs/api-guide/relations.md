@@ -185,7 +185,8 @@ By default this field is read-write, although you can change this behavior using
 
 ---
 
-**Note**: This field is designed for objects that map to a URL that accepts a single URL keyword argument, as set using the `lookup_field` and `lookup_url_kwarg` arguments.
+!!! Note
+  This field is designed for objects that map to a URL that accepts a single URL keyword argument, as set using the `lookup_field` and `lookup_url_kwarg` arguments.
 
 This is suitable for URLs that contain a single primary key or slug argument as part of the URL.
 

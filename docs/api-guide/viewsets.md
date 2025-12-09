@@ -128,7 +128,8 @@ You may inspect these attributes to adjust behavior based on the current action.
             permission_classes = [IsAuthenticated]
         else:
             permission_classes = [IsAdminUser]
-        return [permission() for permission in permission_classes]
+!!! Note
+ eturn [permission() for permission in permission_classes]
 
 **Note**: the `action` attribute is not available in the `get_parsers`, `get_authenticators` and `get_content_negotiator` methods, as it is set _after_ they are called in the framework lifecycle. If you override one of these methods and try to access the `action` attribute in them, you will get an `AttributeError` error.
 

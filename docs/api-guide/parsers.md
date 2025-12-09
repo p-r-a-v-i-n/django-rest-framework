@@ -19,7 +19,8 @@ The set of valid parsers for a view is always defined as a list of classes.  Whe
 
 ---
 
-**Note**: When developing client applications always remember to make sure you're setting the `Content-Type` header when sending data in an HTTP request.
+!!! Note
+  When developing client applications always remember to make sure you're setting the `Content-Type` header when sending data in an HTTP request.
 
 If you don't set the content type, most clients will default to using `'application/x-www-form-urlencoded'`, which may not be what you wanted.
 

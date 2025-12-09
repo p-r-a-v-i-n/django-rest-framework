@@ -53,7 +53,8 @@ For example:
 
 ---
 
-**Note**: With the exception of `DjangoObjectPermissions`, the provided
+!!! Note
+  With the exception of `DjangoObjectPermissions`, the provided
 permission classes in `rest_framework.permissions` **do not** implement the
 methods necessary to check object permissions.
 
@@ -201,7 +202,8 @@ As with `DjangoModelPermissions` you can use custom model permissions by overrid
 
 ---
 
-**Note**: If you need object level `view` permissions for `GET`, `HEAD` and `OPTIONS` requests and are using django-guardian for your object-level permissions backend, you'll want to consider using the `DjangoObjectPermissionsFilter` class provided by the [`djangorestframework-guardian` package][django-rest-framework-guardian]. It ensures that list endpoints only return results including objects for which the user has appropriate view permissions.
+!!! Note
+  If you need object level `view` permissions for `GET`, `HEAD` and `OPTIONS` requests and are using django-guardian for your object-level permissions backend, you'll want to consider using the `DjangoObjectPermissionsFilter` class provided by the [`djangorestframework-guardian` package][django-rest-framework-guardian]. It ensures that list endpoints only return results including objects for which the user has appropriate view permissions.
 
 ---
 
@@ -223,7 +225,8 @@ If you need to test if a request is a read operation or a write operation, you s
 
 ---
 
-**Note**: The instance-level `has_object_permission` method will only be called if the view-level `has_permission` checks have already passed. Also note that in order for the instance-level checks to run, the view code should explicitly call `.check_object_permissions(request, obj)`. If you are using the generic views then this will be handled for you by default. (Function-based views will need to check object permissions explicitly, raising `PermissionDenied` on failure.)
+!!! Note
+  The instance-level `has_object_permission` method will only be called if the view-level `has_permission` checks have already passed. Also note that in order for the instance-level checks to run, the view code should explicitly call `.check_object_permissions(request, obj)`. If you are using the generic views then this will be handled for you by default. (Function-based views will need to check object permissions explicitly, raising `PermissionDenied` on failure.)
 
 ---
 

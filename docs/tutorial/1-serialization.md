@@ -8,7 +8,8 @@ The tutorial is fairly in-depth, so you should probably get a cookie and a cup o
 
 ---
 
-**Note**: The code for this tutorial is available in the [encode/rest-framework-tutorial][repo] repository on GitHub. Feel free to clone the repository and see the code in action.
+!!! Note
+  The code for this tutorial is available in the [encode/rest-framework-tutorial][repo] repository on GitHub. Feel free to clone the repository and see the code in action.
 
 ---
 
