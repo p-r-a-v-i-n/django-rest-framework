@@ -54,9 +54,9 @@ For example:
 ---
 
 !!! Note
-  With the exception of `DjangoObjectPermissions`, the provided
-permission classes in `rest_framework.permissions` **do not** implement the
-methods necessary to check object permissions.
+    With the exception of `DjangoObjectPermissions`, the provided
+    permission classes in `rest_framework.permissions` **do not** implement the
+    methods necessary to check object permissions.
 
 If you wish to use the provided permission classes in order to check object
 permissions, **you must** subclass them and implement the

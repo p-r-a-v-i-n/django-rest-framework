@@ -194,7 +194,8 @@ Your `validate_<field_name>` methods should return the validated value or raise 
 
 ---
 
-**Note:** If your `<field_name>` is declared on your serializer with the parameter `required=False` then this validation step will not take place if the field is not included.
+!!! Note
+    If your `<field_name>` is declared on your serializer with the parameter `required=False` then this validation step will not take place if the field is not included.
 
 ---
 
@@ -545,7 +546,7 @@ Model fields which have `editable=False` set, and `AutoField` fields will be set
 ---
 
 !!! Note
-  There is a special-case where a read-only field is part of a `unique_together` constraint at the model level. In this case the field is required by the serializer class in order to validate the constraint, but should also not be editable by the user.
+    There is a special-case where a read-only field is part of a `unique_together` constraint at the model level. In this case the field is required by the serializer class in order to validate the constraint, but should also not be editable by the user.
 
 The right way to deal with this is to specify the field explicitly on the serializer, providing both the `read_only=True` and `default=…` keyword arguments.
 

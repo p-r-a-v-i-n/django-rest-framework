@@ -241,7 +241,7 @@ In compiling the schema, `SchemaGenerator` calls `get_components()` and
 ----
 
 !!! Note
-  The automatic introspection of components, and many operation
+    The automatic introspection of components, and many operation
 parameters relies on the relevant attributes and methods of
 `GenericAPIView`: `get_serializer()`, `pagination_class`, `filter_backends`,
 etc. For basic `APIView` subclasses, default introspection is essentially limited to

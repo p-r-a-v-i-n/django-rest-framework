@@ -83,7 +83,8 @@ To run the tests, clone the repository, and then:
 
 ---
 
-**Note:** if your tests require access to the database, do not forget to inherit from `django.test.TestCase` or use the `@pytest.mark.django_db()` decorator.
+!!! Note
+    if your tests require access to the database, do not forget to inherit from `django.test.TestCase` or use the `@pytest.mark.django_db()` decorator.
 
 For example, with TestCase:
 
@@ -229,7 +230,8 @@ If you want to draw attention to a note or warning, use a pair of enclosing line
 
     ---
 
-    **Note:** A useful documentation note.
+    !!! Note
+        A useful documentation note.
 
     ---
 

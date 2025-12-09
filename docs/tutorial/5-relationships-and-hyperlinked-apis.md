@@ -122,21 +122,20 @@ Because we've included format suffixed URLs such as `'.json'`, we also need to i
 
 ---
 
-**Note:**
+!!! Note
+    When you are manually instantiating these serializers inside your views (e.g., in `SnippetDetail` or `SnippetList`), you **must** pass `context={'request': request}` so the serializer knows how to build absolute URLs. For example, instead of:
 
-When you are manually instantiating these serializers inside your views (e.g., in `SnippetDetail` or `SnippetList`), you **must** pass `context={'request': request}` so the serializer knows how to build absolute URLs. For example, instead of:
+    ```python
+    serializer = SnippetSerializer(snippet)
+    ```
 
-```python
-serializer = SnippetSerializer(snippet)
-```
+    You must write:
 
-You must write:
+    ```python
+    serializer = SnippetSerializer(snippet, context={"request": request})
+    ```
 
-```python
-serializer = SnippetSerializer(snippet, context={"request": request})
-```
-
-If your view is a subclass of `GenericAPIView`, you may use the `get_serializer_context()` as a convenience method.
+    If your view is a subclass of `GenericAPIView`, you may use the `get_serializer_context()` as a convenience method.
 
 ---
 

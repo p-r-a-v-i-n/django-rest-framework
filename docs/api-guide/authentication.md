@@ -21,7 +21,8 @@ The `request.auth` property is used for any additional authentication informatio
 
 ---
 
-**Note:** Don't forget that **authentication by itself won't allow or disallow an incoming request**, it simply identifies the credentials that the request was made with.
+!!! Note
+    Don't forget that **authentication by itself won't allow or disallow an incoming request**, it simply identifies the credentials that the request was made with.
 
 For information on how to set up the permission policies for your API please see the [permissions documentation][permission].
 
@@ -122,13 +123,15 @@ Unauthenticated responses that are denied permission will result in an `HTTP 401
 
     WWW-Authenticate: Basic realm="api"
 
-**Note:** If you use `BasicAuthentication` in production you must ensure that your API is only available over `https`.  You should also ensure that your API clients will always re-request the username and password at login, and will never store those details to persistent storage.
+!!! Note
+    If you use `BasicAuthentication` in production you must ensure that your API is only available over `https`.  You should also ensure that your API clients will always re-request the username and password at login, and will never store those details to persistent storage.
 
 ## TokenAuthentication
 
 ---
 
-**Note:** The token authentication provided by Django REST framework is a fairly simple implementation.
+!!! Note
+    The token authentication provided by Django REST framework is a fairly simple implementation.
 
 For an implementation which allows more than one token per user, has some tighter security implementation details, and supports token expiry, please see the [Django REST Knox][django-rest-knox] third party package.
 
@@ -175,7 +178,8 @@ The `curl` command line tool may be useful for testing token authenticated APIs.
 
 ---
 
-**Note:** If you use `TokenAuthentication` in production you must ensure that your API is only available over `https`.
+!!! Note
+    If you use `TokenAuthentication` in production you must ensure that your API is only available over `https`.
 
 ---
 
@@ -336,7 +340,8 @@ If the `.authenticate_header()` method is not overridden, the authentication sch
 
 ---
 
-**Note:** When your custom authenticator is invoked by the request object's `.user` or `.auth` properties, you may see an `AttributeError` re-raised as a `WrappedAttributeError`. This is necessary to prevent the original exception from being suppressed by the outer property access. Python will not recognize that the `AttributeError` originates from your custom authenticator and will instead assume that the request object does not have a `.user` or `.auth` property. These errors should be fixed or otherwise handled by your authenticator.
+!!! Note
+    When your custom authenticator is invoked by the request object's `.user` or `.auth` properties, you may see an `AttributeError` re-raised as a `WrappedAttributeError`. This is necessary to prevent the original exception from being suppressed by the outer property access. Python will not recognize that the `AttributeError` originates from your custom authenticator and will instead assume that the request object does not have a `.user` or `.auth` property. These errors should be fixed or otherwise handled by your authenticator.
 
 ---
 

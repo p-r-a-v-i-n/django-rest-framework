@@ -43,7 +43,7 @@ The example above would generate the following URL patterns:
 ---
 
 !!! Note
-  The `basename` argument is used to specify the initial part of the view name pattern.  In the example above, that's the `user` or `account` part.
+    The `basename` argument is used to specify the initial part of the view name pattern.  In the example above, that's the `user` or `account` part.
 
 Typically you won't *need* to specify the `basename` argument, but if you have a viewset where you've defined a custom `get_queryset` method, then the viewset may not have a `.queryset` attribute set.  If you try to register that viewset you'll see an error like this:
 

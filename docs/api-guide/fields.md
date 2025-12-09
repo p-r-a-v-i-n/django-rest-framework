@@ -13,7 +13,8 @@ Serializer fields handle converting between primitive values and internal dataty
 
 ---
 
-**Note:** The serializer fields are declared in `fields.py`, but by convention you should import them using `from rest_framework import serializers` and refer to fields as `serializers.<FieldName>`.
+!!! Note
+    The serializer fields are declared in `fields.py`, but by convention you should import them using `from rest_framework import serializers` and refer to fields as `serializers.<FieldName>`.
 
 ---
 
@@ -567,7 +568,8 @@ For further examples on `HiddenField` see the [validators](validators.md) docume
 
 ---
 
-**Note:** `HiddenField()` does not appear in `partial=True` serializer (when making `PATCH` request).
+!!! Note
+    `HiddenField()` does not appear in `partial=True` serializer (when making `PATCH` request).
 
 ---
 

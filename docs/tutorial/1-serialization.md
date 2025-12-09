@@ -9,7 +9,7 @@ The tutorial is fairly in-depth, so you should probably get a cookie and a cup o
 ---
 
 !!! Note
-  The code for this tutorial is available in the [encode/rest-framework-tutorial][repo] repository on GitHub. Feel free to clone the repository and see the code in action.
+    The code for this tutorial is available in the [encode/rest-framework-tutorial][repo] repository on GitHub. Feel free to clone the repository and see the code in action.
 
 ---
 
@@ -30,7 +30,8 @@ pip install djangorestframework
 pip install pygments  # We'll be using this for the code highlighting
 ```
 
-**Note:** To exit the virtual environment at any time, just type `deactivate`.  For more information see the [venv documentation][venv].
+!!! Note
+    To exit the virtual environment at any time, just type `deactivate`.  For more information see the [venv documentation][venv].
 
 ## Getting started
 
